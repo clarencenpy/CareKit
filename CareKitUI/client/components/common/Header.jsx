@@ -34,7 +34,9 @@ class Header extends React.Component {
           <div className="header item" style={{
             letterSpacing: 2,
             textTransform: 'uppercase'
-          }}>CareKit
+          }}>
+            <i className="inverted first aid icon"/>
+            CareKit
           </div>
           <div className="right menu">
             <a className="ui active item">Logout</a>
