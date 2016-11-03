@@ -37,7 +37,7 @@ class Header extends React.Component {
           }}>CareKit
           </div>
           <div className="right menu">
-            <a className="ui item">Logout</a>
+            <a className="ui active item">Logout</a>
           </div>
         </div>
     )
