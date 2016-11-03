@@ -31,7 +31,11 @@ class Header extends React.Component {
               </div>
             </div>
           </div>
-          <div className="header item">CareKit</div>
+          <div className="header item" style={{
+            letterSpacing: 2,
+            textTransform: 'uppercase'
+          }}>CareKit
+          </div>
           <div className="right menu">
             <a className="ui item">Logout</a>
           </div>
