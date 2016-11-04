@@ -9,7 +9,7 @@ export default class Main extends React.Component {
     const buttons2 = [{id: '2-1', text: 'Action 1'}, {id: '2-2', text: 'Action 2'}]
     const buttons3 = [{id: '3-1', text: 'Action 1'}, {id: '3-2', text: 'Action 2'}]
     return (
-        <div id="jp-container" className="jp-container">
+        <div ref="container" className="jp-container">
           <Card ref="card1" header="Header" description="Hello this is pretty cool" buttons={buttons1}/>
           <Card ref="card2" header="Header" description="Hello this is pretty cool" buttons={buttons2}/>
           <Card ref="card3" header="Header" description="Hello this is pretty cool" buttons={buttons3}/>
@@ -19,20 +19,36 @@ export default class Main extends React.Component {
 
   componentDidMount() {
     const jsPlumbInstance = jsPlumb.getInstance({
-      Container: 'jp-container'
+      Container: getDOM(this.refs.container)
     })
-    jsPlumbInstance.connect({
-      source: '1-1',
-      target: getDOM(this.refs.card2),
-      anchors: ['Right', 'Top'],
-      endpoint: 'Dot'
-    })
-    jsPlumbInstance.connect({
-      source: '2-1',
-      target: getDOM(this.refs.card3),
-      anchors: ['Right', 'Top'],
-      endpoint: 'Dot'
-    })
+    const common = {
+      detachable: true
+    }
+    const commonEP = {
+      endpoint: 'Dot',
+      connector: ['Flowchart', {cornerRadius: 10}],
+    }
+    const actionEP = {
+      isSource: true,
+      isTarget: false,
+      anchor: 'Right'
+    }
+    const cardEP = {
+      isSource: false,
+      isTarget: true,
+      anchor: 'Continuous'
+    }
+    jsPlumbInstance.addEndpoint('1-1', commonEP, actionEP)
+    jsPlumbInstance.addEndpoint('1-2', commonEP, actionEP)
+    jsPlumbInstance.addEndpoint('2-2', commonEP, actionEP)
+    jsPlumbInstance.addEndpoint('2-1', commonEP, actionEP)
+    jsPlumbInstance.addEndpoint('3-1', commonEP, actionEP)
+    jsPlumbInstance.addEndpoint('3-2', commonEP, actionEP)
+    jsPlumbInstance.addEndpoint(getDOM(this.refs.card1), commonEP, cardEP)
+    jsPlumbInstance.addEndpoint(getDOM(this.refs.card2), commonEP, cardEP)
+    jsPlumbInstance.addEndpoint(getDOM(this.refs.card3), commonEP, cardEP)
+
+
     jsPlumbInstance.draggable(
         $('.jp-draggable')
     )
