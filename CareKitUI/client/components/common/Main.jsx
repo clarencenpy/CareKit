@@ -21,33 +21,39 @@ export default class Main extends React.Component {
     const jsPlumbInstance = jsPlumb.getInstance({
       Container: getDOM(this.refs.container)
     })
-    const common = {
-      detachable: true
+    const commonConnector = {
+      detachable: true,
+      endpoint: ['Rectangle', 'Dot'],
+      connector: ['Flowchart', {cornerRadius: 10}],
     }
     const commonEP = {
-      endpoint: 'Dot',
       connector: ['Flowchart', {cornerRadius: 10}],
     }
     const actionEP = {
       isSource: true,
       isTarget: false,
-      anchor: 'Right'
+      anchor: 'Right',
+      endpoint: 'Rectangle'
     }
     const cardEP = {
       isSource: false,
       isTarget: true,
-      anchor: 'Continuous'
+      anchor: 'Continuous',
+      endpoint: 'Dot'
     }
-    jsPlumbInstance.addEndpoint('1-1', commonEP, actionEP)
-    jsPlumbInstance.addEndpoint('1-2', commonEP, actionEP)
-    jsPlumbInstance.addEndpoint('2-2', commonEP, actionEP)
-    jsPlumbInstance.addEndpoint('2-1', commonEP, actionEP)
-    jsPlumbInstance.addEndpoint('3-1', commonEP, actionEP)
-    jsPlumbInstance.addEndpoint('3-2', commonEP, actionEP)
-    jsPlumbInstance.addEndpoint(getDOM(this.refs.card1), commonEP, cardEP)
-    jsPlumbInstance.addEndpoint(getDOM(this.refs.card2), commonEP, cardEP)
-    jsPlumbInstance.addEndpoint(getDOM(this.refs.card3), commonEP, cardEP)
+    jsPlumbInstance.addEndpoint('1-1', {...actionEP, uuid: '1-1'}, commonEP)
+    jsPlumbInstance.addEndpoint('1-2', actionEP, commonEP)
+    jsPlumbInstance.addEndpoint('2-2', actionEP, commonEP)
+    jsPlumbInstance.addEndpoint('2-1', actionEP, commonEP)
+    jsPlumbInstance.addEndpoint('3-1', actionEP, commonEP)
+    jsPlumbInstance.addEndpoint('3-2', actionEP, commonEP)
+    jsPlumbInstance.addEndpoint(getDOM(this.refs.card3), {...cardEP, uuid: 'card3'}, commonEP)
 
+    jsPlumbInstance.makeTarget(getDOM(this.refs.card1), cardEP, commonEP)
+    jsPlumbInstance.makeTarget(getDOM(this.refs.card2), cardEP, commonEP)
+    jsPlumbInstance.makeTarget(getDOM(this.refs.card3), cardEP, commonEP)
+
+    jsPlumbInstance.connect({uuids: ["1-1", "card3"]})
 
     jsPlumbInstance.draggable(
         $('.jp-draggable')
