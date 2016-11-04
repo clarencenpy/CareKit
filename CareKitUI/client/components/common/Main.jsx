@@ -21,11 +21,6 @@ export default class Main extends React.Component {
     const jsPlumbInstance = jsPlumb.getInstance({
       Container: getDOM(this.refs.container)
     })
-    const commonConnector = {
-      detachable: true,
-      endpoint: ['Rectangle', 'Dot'],
-      connector: ['Flowchart', {cornerRadius: 10}],
-    }
     const commonEP = {
       connector: ['Flowchart', {cornerRadius: 10}],
     }
@@ -33,13 +28,15 @@ export default class Main extends React.Component {
       isSource: true,
       isTarget: false,
       anchor: 'Right',
-      endpoint: 'Rectangle'
+      endpoint: 'Rectangle',
+      deleteEndpointsOnDetach: false
     }
     const cardEP = {
       isSource: false,
       isTarget: true,
       anchor: 'Continuous',
-      endpoint: 'Dot'
+      endpoint: 'Dot',
+      deleteEndpointsOnDetach: true
     }
     jsPlumbInstance.addEndpoint('1-1', {...actionEP, uuid: '1-1'}, commonEP)
     jsPlumbInstance.addEndpoint('1-2', actionEP, commonEP)
@@ -53,7 +50,11 @@ export default class Main extends React.Component {
     jsPlumbInstance.makeTarget(getDOM(this.refs.card2), cardEP, commonEP)
     jsPlumbInstance.makeTarget(getDOM(this.refs.card3), cardEP, commonEP)
 
-    jsPlumbInstance.connect({uuids: ["1-1", "card3"]})
+
+    jsPlumbInstance.connect({
+      source: jsPlumbInstance.getEndpoint('1-1'),
+      target: jsPlumbInstance.getEndpoint('card3')
+    })
 
     jsPlumbInstance.draggable(
         $('.jp-draggable')
