@@ -21,6 +21,21 @@ export default class Main extends React.Component {
     const jsPlumbInstance = jsPlumb.getInstance({
       Container: getDOM(this.refs.container)
     })
+    jsPlumbInstance.bind('beforeDrop', (params) => {
+      console.log(params) //this is where listeners can respond to drop events
+      return true
+    })
+    jsPlumbInstance.bind('beforeDetach', (jp_connection) => {
+      //hacky workaround for a bug that disregards target settings for
+      //deleteEndpointOnDetach when the connections are drawn programatically
+      let clone = {...jp_connection}
+      setTimeout(() => { //setting timeout to allow connection to be deleted first
+        //manually remove endpoint
+        jsPlumbInstance.deleteEndpoint(clone.endpoints[1])
+      }, 50)
+      return true
+    })
+
     const commonEP = {
       connector: ['Flowchart', {cornerRadius: 10}],
     }
