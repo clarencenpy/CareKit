@@ -4,7 +4,7 @@
   "description": "BotEngine for CareKit Platform",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js & lt --port 3004 --subdomain carekit"
   },
   "author": "clarencenpy",
   "license": "ISC",
