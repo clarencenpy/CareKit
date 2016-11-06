@@ -1,0 +1,14 @@
+{
+  "name": "botengine",
+  "version": "1.0.0",
+  "description": "BotEngine for CareKit Platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "clarencenpy",
+  "license": "ISC",
+  "dependencies": {
+    "messenger-bot": "^2.4.0"
+  }
+}
