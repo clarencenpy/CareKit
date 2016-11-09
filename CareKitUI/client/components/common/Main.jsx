@@ -2,19 +2,26 @@ import React from 'react'
 import {findDOMNode as getDOM}  from 'react-dom'
 
 import Card from './Card'
+import NewCard from './NewCard'
 
 export default class Main extends React.Component {
   render() {
-    const buttons1 = [{id: '1-1', text: 'Action 1'}, {id: '1-2', text: 'Action 2'}]
-    const buttons2 = [{id: '2-1', text: 'Action 1'}, {id: '2-2', text: 'Action 2'}]
-    const buttons3 = [{id: '3-1', text: 'Action 1'}, {id: '3-2', text: 'Action 2'}]
+    const buttons1 = [{id: '1-1', text: 'Action 1', icon: "add icon"}, {id: '1-2', text: 'Action 2', icon: "add icon"}, {id: '1-3', text: 'Delete Card', icon: "delete icon"}]
+    const buttons2 = [{id: '2-1', text: 'Action 1', icon: "add icon"}, {id: '2-2', text: 'Action 2', icon: "add icon"},{id: '2-3', text: 'Delete Card', icon: "delete icon"}]
+    const buttons3 = [{id: '3-1', text: 'Action 1', icon: "add icon"}, {id: '3-2', text: 'Action 2', icon: "add icon"},{id: '2-3', text: 'Delete Card', icon: "delete icon"}]
     return (
         <div ref="container" className="jp-container">
+          <NewCard addCardCallback={this.addCard}/>
           <Card ref="card1" header="Header" description="Hello this is pretty cool" buttons={buttons1}/>
           <Card ref="card2" header="Header" description="Hello this is pretty cool" buttons={buttons2}/>
           <Card ref="card3" header="Header" description="Hello this is pretty cool" buttons={buttons3}/>
         </div>
     )
+  }
+
+  addCard(data) {
+    console.log(data)
+     //change the state to add a card
   }
 
   componentDidMount() {

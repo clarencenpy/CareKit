@@ -11,7 +11,7 @@ class Header extends React.Component {
                 <i className="dropdown icon"/>
                 <span className="text">New</span>
                 <div className="menu">
-                  <div className="item">Document</div>
+                  <div className="item" onClick={this.new_card}>Question Card</div>
                   <div className="item">Image</div>
                 </div>
               </div>
@@ -49,6 +49,15 @@ class Header extends React.Component {
     //initialise dropdown
     $(this.refs.headerDropdown).dropdown()
   }
+
+
+  new_card(){
+    console.log("trying to create a new card")
+    $('.ui.modal').modal('show');
+  }
+
+
+
 }
 
 export default Header
