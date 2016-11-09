@@ -14,7 +14,7 @@ class Card extends React.Component {
         <div id={this.props.data.id} className="ui card jp-draggable">
           <div className="content">
             <div className="description">
-              {this.props.data.description}
+              {this.props.data.message}
             </div>
           </div>
           {

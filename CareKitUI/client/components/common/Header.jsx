@@ -11,7 +11,7 @@ class Header extends React.Component {
                 <i className="dropdown icon"/>
                 <span className="text">New</span>
                 <div className="menu">
-                  <div className="item" onClick={this.new_card}>Question Card</div>
+                  <div className="item" onClick={this.showCreateCardModal}>Question Card</div>
                   <div className="item">Image</div>
                 </div>
               </div>
@@ -51,8 +51,7 @@ class Header extends React.Component {
   }
 
 
-  new_card(){
-    console.log("trying to create a new card")
+  showCreateCardModal() {
     $('.ui.modal').modal('show');
   }
 
