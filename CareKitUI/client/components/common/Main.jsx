@@ -2,6 +2,7 @@ import React from 'react'
 import {findDOMNode as getDOM}  from 'react-dom'
 
 import Card from './Card'
+import NewCard from './NewCard'
 
 export default class Main extends React.Component {
 

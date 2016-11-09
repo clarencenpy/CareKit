@@ -2,10 +2,11 @@ import React from 'react'
 
 const Button = (props) => (
     <div id={props.id} className="ui bottom attached button">
-      <i className="add icon"/>
+      <i className={props.icon}/>
       {props.text}
     </div>
 )
+
 
 class Card extends React.Component {
   render() {
@@ -22,6 +23,7 @@ class Card extends React.Component {
                     <Button {...b} key={b.id}/>
                 )) : null
           }
+
         </div>
     )
   }
