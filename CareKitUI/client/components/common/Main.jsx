@@ -4,15 +4,46 @@ import {findDOMNode as getDOM}  from 'react-dom'
 import Card from './Card'
 
 export default class Main extends React.Component {
+
+  constructor() {
+    super()
+    this.state = {
+      cards: [{
+        description: 'Card 1',
+        id: 'card1',
+        buttons: [{id: '1-1', text: 'Action 1'}, {id: '1-2', text: 'Action 2'}]
+      }, {
+        description: 'Card 2',
+        id: 'card2',
+        buttons: [{id: '2-1', text: 'Action 1'}, {id: '2-2', text: 'Action 2'}]
+      }, {
+        description: 'Card 3',
+        id: 'card3',
+        buttons: [{id: '3-1', text: 'Action 1'}, {id: '3-2', text: 'Action 2'}]
+      }, {
+        description: 'Card 4',
+        id: 'card4',
+        buttons: [{id: '4-1', text: 'Action 1'}, {id: '4-2', text: 'Action 2'}]
+      }]
+    }
+  }
+
+  addCard(data) {
+    let newCards = this.state.cards
+    newState.push(data)
+    this.setState({
+      cards: newCards
+    })
+  }
+
   render() {
-    const buttons1 = [{id: '1-1', text: 'Action 1'}, {id: '1-2', text: 'Action 2'}]
-    const buttons2 = [{id: '2-1', text: 'Action 1'}, {id: '2-2', text: 'Action 2'}]
-    const buttons3 = [{id: '3-1', text: 'Action 1'}, {id: '3-2', text: 'Action 2'}]
     return (
         <div ref="container" className="jp-container">
-          <Card ref="card1" header="Header" description="Hello this is pretty cool" buttons={buttons1}/>
-          <Card ref="card2" header="Header" description="Hello this is pretty cool" buttons={buttons2}/>
-          <Card ref="card3" header="Header" description="Hello this is pretty cool" buttons={buttons3}/>
+          {
+            this.state.cards.map((card) => (
+                <Card data={card} key={card.id}/>
+            ))
+          }
         </div>
     )
   }
@@ -59,11 +90,11 @@ export default class Main extends React.Component {
     jsPlumbInstance.addEndpoint('2-1', actionEP, commonEP)
     jsPlumbInstance.addEndpoint('3-1', actionEP, commonEP)
     jsPlumbInstance.addEndpoint('3-2', actionEP, commonEP)
-    jsPlumbInstance.addEndpoint(getDOM(this.refs.card3), {...cardEP, uuid: 'card3'}, commonEP)
+    jsPlumbInstance.addEndpoint('card3', {...cardEP, uuid: 'card3'}, commonEP)
 
-    jsPlumbInstance.makeTarget(getDOM(this.refs.card1), cardEP, commonEP)
-    jsPlumbInstance.makeTarget(getDOM(this.refs.card2), cardEP, commonEP)
-    jsPlumbInstance.makeTarget(getDOM(this.refs.card3), cardEP, commonEP)
+    jsPlumbInstance.makeTarget('card1', cardEP, commonEP)
+    jsPlumbInstance.makeTarget('card2', cardEP, commonEP)
+    jsPlumbInstance.makeTarget('card3', cardEP, commonEP)
 
 
     jsPlumbInstance.connect({

@@ -10,16 +10,15 @@ const Button = (props) => (
 class Card extends React.Component {
   render() {
     return (
-        <div className="ui card jp-draggable">
+        <div id={this.props.data.id} className="ui card jp-draggable">
           <div className="content">
-            <div className="header">{this.props.header}</div>
             <div className="description">
-              {this.props.description}
+              {this.props.data.description}
             </div>
           </div>
           {
-            this.props.buttons && this.props.buttons.length > 0 ?
-                this.props.buttons.map((b) => (
+            this.props.data.buttons && this.props.data.buttons.length > 0 ?
+                this.props.data.buttons.map((b) => (
                     <Button {...b} key={b.id}/>
                 )) : null
           }
