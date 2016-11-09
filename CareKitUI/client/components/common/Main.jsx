@@ -1,6 +1,7 @@
 import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {findDOMNode as getDOM}  from 'react-dom'
+import uuid from 'uuid'
 
 import * as jp from './JSPlumbOptions'
 import Card from './Card'
@@ -14,19 +15,19 @@ export default class Main extends TrackerReact(React.Component) {
       cards: [{
         message: 'Card 1',
         id: 'card1',
-        buttons: [{id: '1-1', text: 'Action 1'}, {id: '1-2', text: 'Action 2'}]
+        buttons: [{id: 'card1-1', text: 'Action 1', postback: 'card4'}, {id: 'card1-2', text: 'Action 2'}]
       }, {
         message: 'Card 2',
         id: 'card2',
-        buttons: [{id: '2-1', text: 'Action 1'}, {id: '2-2', text: 'Action 2'}]
+        buttons: [{id: 'card2-1', text: 'Action 1', postback: 'card4'}, {id: 'card2-2', text: 'Action 2'}]
       }, {
         message: 'Card 3',
         id: 'card3',
-        buttons: [{id: '3-1', text: 'Action 1'}, {id: '3-2', text: 'Action 2'}]
+        buttons: [{id: 'card3-1', text: 'Action 1'}, {id: 'card3-2', text: 'Action 2', postback: 'card4'}]
       }, {
         message: 'Card 4',
         id: 'card4',
-        buttons: [{id: '4-1', text: 'Action 1'}, {id: '4-2', text: 'Action 2'}]
+        buttons: [{id: 'card4-1', text: 'Action 1'}, {id: 'card4-2', text: 'Action 2'}]
       }]
     }
   }
@@ -69,8 +70,21 @@ export default class Main extends TrackerReact(React.Component) {
     const jpi = this.state.jsPlumbInstance
 
     jpi.bind('beforeDrop', (params) => {
-      console.log(params) //this is where listeners can respond to drop events
-      return true
+      //add postback messageId to the card
+      for (let card of this.state.cards) {
+        if (params.sourceId.indexOf(card.id) >= 0) {
+          let updated = false
+          for (let button of card.buttons) {
+            if (button.id === params.sourceId) {
+              button.postback = params.targetId
+              updated = true
+              break;
+            }
+          }
+          if (updated) break
+        }
+      }
+      return true //permit the drop event to continue
     })
     jpi.bind('beforeDetach', (jp_connection) => {
       //hacky workaround for a bug that disregards target settings for
@@ -84,24 +98,28 @@ export default class Main extends TrackerReact(React.Component) {
     })
 
     //instatiate all the endpoints
-    this.state.cards.forEach(card => {
+    for (let card of this.state.cards) {
       //make the card a target
       jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
       //add endpoint to each button
-      card.buttons.forEach(button => {
+      for (let button of card.buttons) {
         jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
-      })
-    })
+      }
+    }
 
-    // jpi.connect({
-    //   source: '1-1',
-    //   target: 'card3'
-    // })
+    //start connecting the endpoints based on established postbacks
+    for (let card of this.state.cards) {
+      for (let button of card.buttons) {
+        if (button.postback) {
+          const uuidForEndpoint = uuid.v1()
+          jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
+          jpi.connect({uuids: [button.id, uuidForEndpoint]})
+        }
+      }
+    }
 
     //make all cards draggable
-    jpi.draggable(
-        $('.jp-draggable')
-    )
+    jpi.draggable($('.jp-draggable'))
 
   }
 }
