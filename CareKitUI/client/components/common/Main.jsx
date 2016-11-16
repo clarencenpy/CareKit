@@ -150,8 +150,8 @@ export default class Main extends TrackerReact(React.Component) {
     })
     this.setState({cards: newState}, () => {
       //since the card may now have been resized
-      this.state.jsPlumbInstance.revalidate(id)
-      this.state.jsPlumbInstance.repaintEverything()
+      this.state.jsPlumbInstance.getDragManager().updateOffsets(id)
+      this.state.jsPlumbInstance.repaint(id)
     })
   }
 }
