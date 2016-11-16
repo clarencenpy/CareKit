@@ -57,7 +57,11 @@ export default class Main extends TrackerReact(React.Component) {
           <CreateCardModal onAddCard={this.addCard.bind(this)}/>
           {
             this.state.cards.map((card) => (
-                <Card data={card} key={card.id}/>
+                <Card data={card}
+                      key={card.id}
+                      onEditButton={this.onEditButton.bind(this)}
+                      onEditMessage={this.onEditMessage.bind(this)}
+                />
             ))
           }
         </div>
@@ -123,5 +127,31 @@ export default class Main extends TrackerReact(React.Component) {
     //make all cards draggable
     jpi.draggable($('.jp-draggable'))
 
+  }
+
+  onEditButton(id, data) {
+    //where id is the id of the button so I can locate it
+    //and data is the callback value from riek
+    let newState = JSON.parse(JSON.stringify(this.state.cards))
+    newState.map(card => {
+      card.buttons.map(button => {
+        if (button.id === id) button.text = data.text
+        return button
+      })
+      return card
+    })
+    this.setState({cards: newState})
+  }
+
+  onEditMessage(id, data) {
+    let newState = JSON.parse(JSON.stringify(this.state.cards))
+    newState.map(card => {
+      if (card.id === id) card.message = data.message
+    })
+    this.setState({cards: newState}, () => {
+      //since the card may now have been resized
+      this.state.jsPlumbInstance.revalidate(id)
+      this.state.jsPlumbInstance.repaintEverything()
+    })
   }
 }

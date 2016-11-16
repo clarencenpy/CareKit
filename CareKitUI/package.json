@@ -11,5 +11,8 @@
     "react-dom": "^15.3.2",
     "react-mounter": "^1.2.0",
     "uuid": "^2.0.3"
+  },
+  "devDependencies": {
+    "riek": "^1.0.7"
   }
 }
