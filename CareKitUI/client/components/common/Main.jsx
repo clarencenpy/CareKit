@@ -6,6 +6,7 @@ import uuid from 'uuid'
 import * as jp from './JSPlumbOptions'
 import Card from './Card'
 import CreateCardModal from './CreateCardModal'
+import ToolsPalette from './ToolsPalette'
 
 export default class Main extends TrackerReact(React.Component) {
 
@@ -52,6 +53,7 @@ export default class Main extends TrackerReact(React.Component) {
   render() {
     return (
         <div ref="container" className="jp-container">
+          <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
           <CreateCardModal onAddCard={this.addCard.bind(this)}/>
           {
             this.state.cards.map((card) => (
