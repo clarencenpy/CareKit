@@ -3,7 +3,7 @@ import React from 'react'
 class Header extends React.Component {
   render() {
     return (
-        <div className="ui massive top attached red inverted menu">
+        <div className="ui borderless massive top attached red inverted menu">
           <div className="ui dropdown icon item" ref="headerDropdown">
             <i className="bars icon"/>
             <div className="menu">
