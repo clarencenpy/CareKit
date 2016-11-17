@@ -34,7 +34,7 @@ class Card extends React.Component {
                     <Button {...b} key={b.id} onEdit={this.props.onEditButton}/>
                 )) : null
           }
-          <div className="ui bottom attached button">
+          <div className="ui bottom attached button" onClick={this.props.addButton.bind(null, this.props.data.id)}>
             <i className="plus icon"/> Add Button
           </div>
 

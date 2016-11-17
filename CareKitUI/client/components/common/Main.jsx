@@ -62,6 +62,7 @@ export default class Main extends TrackerReact(React.Component) {
                       key={card.id}
                       onEditButton={this.onEditButton.bind(this)}
                       onEditMessage={this.onEditMessage.bind(this)}
+                      addButton={this.addButton.bind(this)}
                 />
             ))
           }
@@ -148,11 +149,32 @@ export default class Main extends TrackerReact(React.Component) {
     let newState = JSON.parse(JSON.stringify(this.state.cards))
     newState.map(card => {
       if (card.id === id) card.message = data.message
+      return card
     })
     this.setState({cards: newState}, () => {
       //since the card may now have been resized
       this.state.jsPlumbInstance.getDragManager().updateOffsets(id)
       this.state.jsPlumbInstance.repaint(id)
+    })
+  }
+
+  addButton(id) {
+    let newState = JSON.parse(JSON.stringify(this.state.cards))
+    let buttonId
+    newState.forEach(card => {
+      if (card.id === id) {
+        buttonId = id + '_button' + card.buttons.length + 1
+        card.buttons.push({
+          id: buttonId,
+          text: `Action ${card.buttons.length + 1}`
+        })
+      }
+      return card
+    })
+    this.setState({cards: newState}, () => {
+      //jsPlumb to add endpoints
+      const jpi = this.state.jsPlumbInstance //get the instance saved in state object
+      jpi.addEndpoint(buttonId, {uuid: buttonId}, jp.ENDPOINT_SOURCE)
     })
   }
 }
