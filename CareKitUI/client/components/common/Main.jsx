@@ -13,23 +13,24 @@ export default class Main extends TrackerReact(React.Component) {
   constructor() {
     super()
     this.state = {
-      cards: [{
-        message: 'Card 1',
-        id: 'card1',
-        buttons: [{id: 'card1-1', text: 'Action 1', postback: 'card4'}, {id: 'card1-2', text: 'Action 2'}]
-      }, {
-        message: 'Card 2',
-        id: 'card2',
-        buttons: [{id: 'card2-1', text: 'Action 1', postback: 'card4'}, {id: 'card2-2', text: 'Action 2'}]
-      }, {
-        message: 'Card 3',
-        id: 'card3',
-        buttons: [{id: 'card3-1', text: 'Action 1'}, {id: 'card3-2', text: 'Action 2', postback: 'card4'}]
-      }, {
-        message: 'Card 4',
-        id: 'card4',
-        buttons: [{id: 'card4-1', text: 'Action 1'}, {id: 'card4-2', text: 'Action 2'}]
-      }]
+      cards: []
+      // cards: [{
+      //   message: 'Card 1',
+      //   id: 'card1',
+      //   buttons: [{id: 'card1-1', text: 'Action 1', postback: 'card4'}, {id: 'card1-2', text: 'Action 2'}]
+      // }, {
+      //   message: 'Card 2',
+      //   id: 'card2',
+      //   buttons: [{id: 'card2-1', text: 'Action 1', postback: 'card4'}, {id: 'card2-2', text: 'Action 2'}]
+      // }, {
+      //   message: 'Card 3',
+      //   id: 'card3',
+      //   buttons: [{id: 'card3-1', text: 'Action 1'}, {id: 'card3-2', text: 'Action 2', postback: 'card4'}]
+      // }, {
+      //   message: 'Card 4',
+      //   id: 'card4',
+      //   buttons: [{id: 'card4-1', text: 'Action 1'}, {id: 'card4-2', text: 'Action 2'}]
+      // }]
     }
   }
 

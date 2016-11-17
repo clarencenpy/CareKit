@@ -5,7 +5,7 @@ class ToolsPalette extends React.Component {
     return (
         <div className="ui vertical labeled icon menu">
           <a className="item">
-            <i className="file text outline icon"/>
+            <i className="file text outline icon" onClick={this.showCreateCardModal}/>
             Text
           </a>
           <a className="item">
@@ -27,6 +27,12 @@ class ToolsPalette extends React.Component {
         </div>
     )
   }
+
+  showCreateCardModal() {
+    $('.ui.modal').modal('show');
+  }
 }
+
+
 
 export default ToolsPalette

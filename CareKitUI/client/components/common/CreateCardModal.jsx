@@ -12,10 +12,10 @@ class CreateCardModal extends React.Component {
               <input ref="message" type="text" placeholder="Enter Message..."/>
             </div>
             <div className="ui input">
-              <input ref="button1" type="text" placeholder="Option 1"/>
+              <input ref="button1" type="text" placeholder="Action 1"/>
             </div>
             <div className="ui input">
-              <input ref="button2" type="text" placeholder="Option 2"/>
+              <input ref="button2" type="text" placeholder="Action 2"/>
             </div>
           </div>
           <div className="actions">
