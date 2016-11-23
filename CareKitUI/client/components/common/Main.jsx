@@ -2,6 +2,7 @@ import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {findDOMNode as getDOM}  from 'react-dom'
 import uuid from 'uuid'
+import Immutable from 'immutable'
 
 import * as jp from './JSPlumbOptions'
 import Card from './Card'
@@ -13,7 +14,7 @@ export default class Main extends TrackerReact(React.Component) {
   constructor() {
     super()
     this.state = {
-      cards: []
+      cards: Immutable.List()
       // cards: [{
       //   message: 'Card 1',
       //   id: 'card1',
@@ -36,7 +37,7 @@ export default class Main extends TrackerReact(React.Component) {
 
   addCard(data) {
     this.setState({
-      cards: [...this.state.cards, data] //new array with the new card data added
+      cards: this.state.cards.push(Immutable.fromJS(data))
     }, () => {
       //after the card has been updated by react..
       //jsplumb does its work
@@ -58,8 +59,8 @@ export default class Main extends TrackerReact(React.Component) {
           <CreateCardModal onAddCard={this.addCard.bind(this)}/>
           {
             this.state.cards.map((card) => (
-                <Card data={card}
-                      key={card.id}
+                <Card data={card.toJS()}
+                      key={card.get('id')}
                       onEditButton={this.onEditButton.bind(this)}
                       onEditMessage={this.onEditMessage.bind(this)}
                       addButton={this.addButton.bind(this)}
@@ -79,21 +80,21 @@ export default class Main extends TrackerReact(React.Component) {
 
     jpi.bind('beforeDrop', (params) => {
       //add postback messageId to the card
-      for (let card of this.state.cards) {
-        if (params.sourceId.indexOf(card.id) >= 0) {
-          let updated = false
-          for (let button of card.buttons) {
-            if (button.id === params.sourceId) {
-              button.postback = params.targetId
-              updated = true
-              break;
-            }
-          }
-          if (updated) break
-        }
-      }
+      let cards = this.state.cards
+      let cardIndex = cards.findIndex(card => params.sourceId.indexOf(card.get('id')) >= 0)
+      let buttonIndex = cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === params.sourceId)
+      this.setState({
+        cards: cards.updateIn([
+          cardIndex,
+          'buttons',
+          buttonIndex,
+          'postback'
+        ], () => params.targetId)
+      })
+
       return true //permit the drop event to continue
     })
+
     jpi.bind('beforeDetach', (jp_connection) => {
       //hacky workaround for a bug that disregards target settings for
       //deleteEndpointOnDetach when the connections are drawn programatically
@@ -105,8 +106,11 @@ export default class Main extends TrackerReact(React.Component) {
       return true
     })
 
-    //instatiate all the endpoints
-    for (let card of this.state.cards) {
+    //instantiate all the endpoints
+    let cards = this.state.cards.toJS()
+    //use plain js from this point on, since no changes to state
+
+    for (let card of cards) {
       //make the card a target
       jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
       //add endpoint to each button
@@ -116,7 +120,7 @@ export default class Main extends TrackerReact(React.Component) {
     }
 
     //start connecting the endpoints based on established postbacks
-    for (let card of this.state.cards) {
+    for (let card of cards) {
       for (let button of card.buttons) {
         if (button.postback) {
           const uuidForEndpoint = uuid.v1()
@@ -134,24 +138,17 @@ export default class Main extends TrackerReact(React.Component) {
   onEditButton(id, data) {
     //where id is the id of the button so I can locate it
     //and data is the callback value from riek
-    let newState = JSON.parse(JSON.stringify(this.state.cards))
-    newState.map(card => {
-      card.buttons.map(button => {
-        if (button.id === id) button.text = data.text
-        return button
-      })
-      return card
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonIndex = this.state.cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === id)
+
+    this.setState({
+      cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex, 'text'], () => data.text)
     })
-    this.setState({cards: newState})
   }
 
   onEditMessage(id, data) {
-    let newState = JSON.parse(JSON.stringify(this.state.cards))
-    newState.map(card => {
-      if (card.id === id) card.message = data.message
-      return card
-    })
-    this.setState({cards: newState}, () => {
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    this.setState({cards: this.state.cards.updateIn([cardIndex, 'message'], () => data.message)}, () => {
       //since the card may now have been resized
       this.state.jsPlumbInstance.getDragManager().updateOffsets(id)
       this.state.jsPlumbInstance.repaint(id)
@@ -159,19 +156,16 @@ export default class Main extends TrackerReact(React.Component) {
   }
 
   addButton(id) {
-    let newState = JSON.parse(JSON.stringify(this.state.cards))
-    let buttonId
-    newState.forEach(card => {
-      if (card.id === id) {
-        buttonId = id + '_button' + card.buttons.length + 1
-        card.buttons.push({
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonId = `${id}_button${this.state.cards.get(cardIndex).get('buttons').size + 1}`
+    this.setState({
+      cards: this.state.cards.updateIn([cardIndex, 'buttons'], buttons => {
+        return buttons.push(Immutable.Map({
           id: buttonId,
-          text: `Action ${card.buttons.length + 1}`
-        })
-      }
-      return card
-    })
-    this.setState({cards: newState}, () => {
+          text: `Action ${buttons.size + 1}`
+        }))
+      })
+    }, () => {
       //jsPlumb to add endpoints
       const jpi = this.state.jsPlumbInstance //get the instance saved in state object
       jpi.addEndpoint(buttonId, {uuid: buttonId}, jp.ENDPOINT_SOURCE)
