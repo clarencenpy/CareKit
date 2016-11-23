@@ -4,8 +4,8 @@ class ToolsPalette extends React.Component {
   render() {
     return (
         <div className="ui vertical labeled icon menu">
-          <a className="item">
-            <i className="file text outline icon" onClick={this.showCreateCardModal}/>
+          <a className="item" onClick={this.showCreateCardModal}>
+            <i className="file text outline icon" />
             Text
           </a>
           <a className="item">
