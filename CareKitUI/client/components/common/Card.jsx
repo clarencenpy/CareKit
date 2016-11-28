@@ -16,7 +16,8 @@ const Button = (props) => (
 class Card extends React.Component {
   render() {
     return (
-        <div id={this.props.data.id} className="ui card jp-draggable">
+        <div id={this.props.data.id} className="ui card jp-draggable"
+             style={{left: this.props.data.left, top: this.props.data.top}}>
           <div className="content">
             <div className="description">
               <RIETextArea

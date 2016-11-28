@@ -39,7 +39,9 @@ class Header extends React.Component {
             CareKit
           </div>
           <div className="right menu">
-            <a className="ui active item">Logout</a>
+            <a className="ui active item">
+              <i className="cloud upload icon"/> Deploy
+            </a>
           </div>
         </div>
     )

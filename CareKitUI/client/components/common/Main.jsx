@@ -9,33 +9,18 @@ import Card from './Card'
 import CreateCardModal from './CreateCardModal'
 import ToolsPalette from './ToolsPalette'
 
-export default class Main extends TrackerReact(React.Component) {
+export default class Main extends React.Component {
 
   constructor() {
     super()
     this.state = {
       cards: Immutable.List()
-      // cards: [{
-      //   message: 'Card 1',
-      //   id: 'card1',
-      //   buttons: [{id: 'card1-1', text: 'Action 1', postback: 'card4'}, {id: 'card1-2', text: 'Action 2'}]
-      // }, {
-      //   message: 'Card 2',
-      //   id: 'card2',
-      //   buttons: [{id: 'card2-1', text: 'Action 1', postback: 'card4'}, {id: 'card2-2', text: 'Action 2'}]
-      // }, {
-      //   message: 'Card 3',
-      //   id: 'card3',
-      //   buttons: [{id: 'card3-1', text: 'Action 1'}, {id: 'card3-2', text: 'Action 2', postback: 'card4'}]
-      // }, {
-      //   message: 'Card 4',
-      //   id: 'card4',
-      //   buttons: [{id: 'card4-1', text: 'Action 1'}, {id: 'card4-2', text: 'Action 2'}]
-      // }]
     }
   }
 
   addCard(data) {
+    data.left = 150 //default positions to place the card
+    data.top = 30
     this.setState({
       cards: this.state.cards.push(Immutable.fromJS(data))
     }, () => {
