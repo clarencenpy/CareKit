@@ -136,7 +136,7 @@ export default class Main extends React.Component {
 
   onSave() {
     this.setState({saving: true})
-    Meteor.call('deploy', this.state.cards.toJS(), (err) => {
+    Meteor.call('deploy', {cards: this.state.cards.toJS(), pathwayName: this.state.pathwayName}, (err) => {
       if (err) console.log(err)
       this.setState({saving: false})
     })

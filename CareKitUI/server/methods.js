@@ -1,7 +1,18 @@
 Meteor.methods({
-  deploy(cards) {
+  deploy({cards, pathwayName}) {
 
-    //save the state of the flowchart
+    //add entrypoint
+    Messages.insert({
+      entrypoint: true,
+      contents: {
+        title: pathwayName,
+        buttons: [{
+          type: 'postback',
+          title: 'Start',
+          payload: cards[0].id
+        }]
+      }
+    })
 
     //transform each card into the format messenger requires
     cards = cards.map(card => {

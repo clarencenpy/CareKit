@@ -78,7 +78,9 @@ mongo.connect(MONGO_URL).then(db => {
       Messages.findOne({name: payload.postback.payload}).then((m) => {
         console.log(`\nSending response for ${payload.postback.payload}`)
         console.log(JSON.stringify(m, null, 2))
-        reply(m.contents)
+        reply(m.contents, err => {
+          if (err) console.error(err)
+        })
       })
     }
   })
