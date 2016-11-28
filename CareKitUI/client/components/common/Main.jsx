@@ -17,7 +17,9 @@ export default class Main extends React.Component {
     this.state = {
       cards: Immutable.List(),
       saving: false,
-      pathwayName: 'Untitled'
+      pathwayName: 'Untitled',
+      fetchingSavedPathways: false,
+      savedPathways: []
     }
   }
 
@@ -47,6 +49,9 @@ export default class Main extends React.Component {
                   saving={this.state.saving}
                   pathwayName={this.state.pathwayName}
                   onEditPathwayName={this.onEditPathwayName.bind(this)}
+                  savedPathways={this.state.savedPathways}
+                  fetchingSavedPathways={this.state.fetchingSavedPathways}
+                  onOpenRecent={this.onOpenRecent.bind(this)}
           />
           <div ref="container" className="jp-container">
             <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
@@ -132,6 +137,16 @@ export default class Main extends React.Component {
 
   onEditPathwayName(data) {
     this.setState({pathwayName: data.text})
+  }
+
+  onOpenRecent() {
+    this.setState({fetchingSavedPathways: true})
+    Meteor.call('getSavedPathways', (err, savedPathways) => {
+      this.setState({
+        fetchingSavedPathways: false,
+        savedPathways
+      })
+    })
   }
 
   onSave() {

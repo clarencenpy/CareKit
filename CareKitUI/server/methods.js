@@ -1,4 +1,9 @@
 Meteor.methods({
+
+  getSavedPathways() {
+    return Pathways.find({createdBy: Meteor.userId()}).fetch()
+  },
+
   deploy({cards, pathwayName}) {
 
     //add entrypoint

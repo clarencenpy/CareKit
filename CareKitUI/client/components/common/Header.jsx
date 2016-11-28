@@ -10,18 +10,25 @@ class Header extends React.Component {
             <i className="bars icon"/>
             <div className="menu">
               <div className="item">
+                New Pathway
+              </div>
+              <div className="item">
                 <i className="dropdown icon"/>
-                <span className="text">New</span>
+                <span className="text" onClick={this.props.onOpenRecent}>Open Recent</span>
                 <div className="menu">
-                  <div className="item">Question Card</div>
-                  <div className="item">Image</div>
+                  {
+                    this.props.fetchingSavedPathways ?
+                        <div className="item"><i className="notched circle loading icon"/></div> :
+                        this.props.savedPathways.length > 0 ?
+                            this.props.savedPathways.map(p => (
+                                <div className="item">{p.title}</div>
+                            )) : <div className="item">No Recently Saved Pathways</div>
+
+                  }
                 </div>
               </div>
               <div className="item">
-                Open...
-              </div>
-              <div className="item">
-                Save...
+                Save
               </div>
               <div className="item">Edit Permissions</div>
               <div className="divider"></div>
@@ -52,7 +59,7 @@ class Header extends React.Component {
           </div>
           <div className="right menu">
             <a className="ui item" onClick={this.props.onSave}>
-              {this.props.saving ? <i class="notched circle loading icon"/> : <i className="save icon"/>} Save
+              {this.props.saving ? <i className="notched circle loading icon"/> : <i className="save icon"/>} Save
             </a>
             <a className="ui item">
               <i className="cloud upload icon"/> Deploy
@@ -70,7 +77,9 @@ class Header extends React.Component {
     $(this.refs.headerDropdown).dropdown()
   }
 
-
+  componentDidUpdate() {
+    $(this.refs.headerDropdown).dropdown('refresh')
+  }
 
 }
 
