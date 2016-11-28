@@ -1,5 +1,6 @@
 import React from 'react'
 import {RIEInput} from 'riek'
+import Blaze from 'meteor/gadicc:blaze-react-component'
 
 class Header extends React.Component {
   render() {
@@ -53,8 +54,11 @@ class Header extends React.Component {
             <a className="ui item" onClick={this.props.onSave}>
               {this.props.saving ? <i class="notched circle loading icon"/> : <i className="save icon"/>} Save
             </a>
-            <a className="ui active item">
+            <a className="ui item">
               <i className="cloud upload icon"/> Deploy
+            </a>
+            <a className="ui active item">
+              <Blaze template="loginButtons"/>
             </a>
           </div>
         </div>

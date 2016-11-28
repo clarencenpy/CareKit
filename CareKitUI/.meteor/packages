@@ -25,4 +25,7 @@ less@2.7.7
 semantic:ui
 kadira:flow-router
 ultimatejs:tracker-react
-
+accounts-ui
+accounts-google
+useraccounts:unstyled
+gadicc:blaze-react-component
