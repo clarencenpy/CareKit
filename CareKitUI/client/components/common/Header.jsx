@@ -40,11 +40,12 @@ class Header extends React.Component {
             CareKit
           </div>
           <div className="item">
-            Pathway : : &nbsp;
+            Name: &nbsp;
             <RIEInput
                 value={this.props.pathwayName}
                 change={this.props.onEditPathwayName}
                 propName="text"
+                className="pathwayName"
                 classEditing="inline-pathwayName-input"
             />
           </div>
