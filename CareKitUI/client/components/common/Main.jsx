@@ -5,6 +5,7 @@ import uuid from 'uuid'
 import Immutable from 'immutable'
 
 import * as jp from './JSPlumbOptions'
+import Header from './Header'
 import Card from './Card'
 import CreateCardModal from './CreateCardModal'
 import ToolsPalette from './ToolsPalette'
@@ -14,7 +15,8 @@ export default class Main extends React.Component {
   constructor() {
     super()
     this.state = {
-      cards: Immutable.List()
+      cards: Immutable.List(),
+      saving: false
     }
   }
 
@@ -39,19 +41,22 @@ export default class Main extends React.Component {
 
   render() {
     return (
-        <div ref="container" className="jp-container">
-          <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
-          <CreateCardModal onAddCard={this.addCard.bind(this)}/>
-          {
-            this.state.cards.map((card) => (
-                <Card data={card.toJS()}
-                      key={card.get('id')}
-                      onEditButton={this.onEditButton.bind(this)}
-                      onEditMessage={this.onEditMessage.bind(this)}
-                      addButton={this.addButton.bind(this)}
-                />
-            ))
-          }
+        <div>
+          <Header onSave={this.onSave.bind(this)} saving={this.state.saving}/>
+          <div ref="container" className="jp-container">
+            <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
+            <CreateCardModal onAddCard={this.addCard.bind(this)}/>
+            {
+              this.state.cards.map((card) => (
+                  <Card data={card.toJS()}
+                        key={card.get('id')}
+                        onEditButton={this.onEditButton.bind(this)}
+                        onEditMessage={this.onEditMessage.bind(this)}
+                        addButton={this.addButton.bind(this)}
+                  />
+              ))
+            }
+          </div>
         </div>
     )
   }
@@ -118,6 +123,14 @@ export default class Main extends React.Component {
     //make all cards draggable
     jpi.draggable($('.jp-draggable'))
 
+  }
+
+  onSave() {
+    this.setState({saving: true})
+    Meteor.call('deploy', this.state.cards.toJS(), (err) => {
+      if (err) console.log(err)
+      this.setState({saving: false})
+    })
   }
 
   onEditButton(id, data) {

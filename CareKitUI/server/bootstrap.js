@@ -1,4 +1,3 @@
-Messages = new Mongo.Collection('messages')
 Meteor.startup(() => {
   return
   //noinspection UnreachableCodeJS
