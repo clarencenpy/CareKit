@@ -34,6 +34,7 @@ mongo.connect(MONGO_URL).then(db => {
           reply({text: 'Hey again after 5s!'})
         }, 5000)
       })
+      return
     }
 
     if (text.toLowerCase().indexOf('generic') >= 0) {
@@ -42,8 +43,26 @@ mongo.connect(MONGO_URL).then(db => {
         console.log(JSON.stringify(m, null, 2))
         reply(m.contents)
       })
+      return
     }
 
+    //this endpoint returns a list of all entry points
+    if (text.toLowerCase().indexOf('all') >= 0) {
+      Messages.find({entrypoint: true}).toArray().then(messages => {
+        reply({
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'generic',
+              elements: messages.map(m => {
+                return m.contents
+              })
+            }
+          }
+        })
+      })
+      return
+    }
 
   })
 
