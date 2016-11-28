@@ -1,4 +1,5 @@
 import React from 'react'
+import {RIEInput} from 'riek'
 
 class Header extends React.Component {
   render() {
@@ -37,6 +38,15 @@ class Header extends React.Component {
           }}>
             <i className="inverted first aid icon"/>
             CareKit
+          </div>
+          <div className="item">
+            Pathway : : &nbsp;
+            <RIEInput
+                value={this.props.pathwayName}
+                change={this.props.onEditPathwayName}
+                propName="text"
+                classEditing="inline-pathwayName-input"
+            />
           </div>
           <div className="right menu">
             <a className="ui item" onClick={this.props.onSave}>

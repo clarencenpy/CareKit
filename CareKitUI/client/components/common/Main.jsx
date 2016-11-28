@@ -16,7 +16,8 @@ export default class Main extends React.Component {
     super()
     this.state = {
       cards: Immutable.List(),
-      saving: false
+      saving: false,
+      pathwayName: 'Untitled'
     }
   }
 
@@ -42,7 +43,11 @@ export default class Main extends React.Component {
   render() {
     return (
         <div>
-          <Header onSave={this.onSave.bind(this)} saving={this.state.saving}/>
+          <Header onSave={this.onSave.bind(this)}
+                  saving={this.state.saving}
+                  pathwayName={this.state.pathwayName}
+                  onEditPathwayName={this.onEditPathwayName.bind(this)}
+          />
           <div ref="container" className="jp-container">
             <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
             <CreateCardModal onAddCard={this.addCard.bind(this)}/>
@@ -123,6 +128,10 @@ export default class Main extends React.Component {
     //make all cards draggable
     jpi.draggable($('.jp-draggable'))
 
+  }
+
+  onEditPathwayName(data) {
+    this.setState({pathwayName: data.text})
   }
 
   onSave() {
