@@ -18,8 +18,9 @@ mongo.connect(MONGO_URL).then(db => {
   })
 
   bot.on('message', (payload, reply) => {
-    console.log('\nreceived message')
+    console.log('\nReceived message')
     console.log(payload)
+
     let text = payload.message.text
 
     if (text.toLowerCase().indexOf('hello') >= 0) {
@@ -36,11 +37,10 @@ mongo.connect(MONGO_URL).then(db => {
     }
 
     if (text.toLowerCase().indexOf('generic') >= 0) {
-      console.log('request for generic message received.. sending')
       Messages.findOne({name: 'generic'}).then((m) => {
-        reply(m.contents, (err) => {
-          if (err) console.log(err)
-        })
+        console.log('\nSending response for generic')
+        console.log(JSON.stringify(m, null, 2))
+        reply(m.contents)
       })
     }
 
@@ -48,15 +48,14 @@ mongo.connect(MONGO_URL).then(db => {
   })
 
   bot.on('postback', (payload, reply) => {
-    console.log(`Payload: ${JSON.stringify(payload, null, 2)}`)
-    console.log(payload.postback.payload)
+    console.log('\nReceived postback')
+    console.log(payload)
+
     if (payload) {
       Messages.findOne({name: payload.postback.payload}).then((m) => {
+        console.log(`\nSending response for ${payload.postback.payload}`)
         console.log(JSON.stringify(m, null, 2))
         reply(m.contents)
-      })
-      .catch((err) => {
-        console.log(err)
       })
     }
   })
