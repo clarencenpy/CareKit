@@ -5,19 +5,23 @@ import {findDOMNode as getDOM}  from 'react-dom'
 var CreateCardModal = React.createClass ({
 
     getInitialState: function() {
-    var id = uuid.v1()
     var inputs = {
       inputs: []
     }
     return inputs;
   },
     addOption: function(){
-      var new_id_number = this.state.length + 1
-      var new_option_number = this.state.length + 1
-      var id = uuid.v1()
-      this.setState(this.state.inputs.inputs.concat([
-              {id:new_id_number, name:new_option_number, uuid:{id}}
-          ]))
+      var new_id_number = this.state.inputs.length + 1;
+      var new_option_number = this.state.inputs.length + 1;
+      var id = uuid.v1();
+      console.log(this.state);
+      var new_input = this.state.inputs.push([{
+        id_num:new_id_number, name:new_option_number, uuid:{id}
+      }]);
+      this.setState({new_input});
+      var newArray = this.state.inputs.map(function(obj){
+        console.log(obj[0].uuid.id);
+      });
   },
   render: function() {
     return (
@@ -30,7 +34,13 @@ var CreateCardModal = React.createClass ({
             {
                     this.state.inputs.map((item) => (
                         <div className="ui input">
-                          <input ref={item.id} type="text" key={item.uuid} placeholder={item.name}/>
+                         {/*<a className={item[0]["id_num"]} onClick={() => this.linkify(item[0]["id_num"])}>
+                          <i className="green large link linkify icon"/>
+                         </a>*/}
+                          <input className={item[0]["id_num"]} type="text" key={item[0]["uuid"]["id"]} placeholder={"Option " + item[0].name}/>
+                          <a className={item[0]["id_num"]} onClick={() => this.removeInput(item[0]["id_num"])}>
+                            <i className="red big link remove circle icon"/>
+                          </a>
                         </div>
                     ))
             }
@@ -55,20 +65,42 @@ var CreateCardModal = React.createClass ({
           </div>
           <div className="actions">
             <div className="ui green approve button" onClick={this.addCard}>Create</div>
-            <div className="ui red cancel button">Cancel</div>
+            <div className="ui red cancel button" onClick={this.cancel}>Cancel</div>
           </div>
         </div>
     );
   },
+  linkify: function(index){
+
+  },
+  removeInput: function(index){
+    this.setState({
+      inputs: this.state.inputs.filter((_, i) => i !== index-1)
+  });
+    console.log(this.state.inputs);
+  },
+  cancel: function(){
+    this.setState(this.getInitialState);
+  },
   addCard: function() {
+    this.setState(this.getInitialState);
     const id = uuid.v1()
     const message = getDOM(this.refs.message).value
-    const button1Text = getDOM(this.refs.button1).value
-    const button2Text = getDOM(this.refs.button2).value
+
+    var input_id = 0;
+    var buttons = [];
+    $(".ui.input :input").each(function() {
+      var text = $(this).text();
+      var id = input_id;
+      input_id = input_id + 1;
+      var button = {id:id, text:text};
+      buttons.push(button);
+    });
+
     this.props.onAddCard({
       id,
       message,
-      buttons: [{id: `${id}_button1`, text: button1Text}, {id: `${id}_button2`, text: button2Text}]
+      buttons: buttons
     })
   }
 });
