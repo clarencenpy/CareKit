@@ -42,6 +42,8 @@ mongo.connect(MONGO_URL).then(db => {
         console.log('\nSending response for generic')
         console.log(JSON.stringify(m, null, 2))
         reply(m.contents)
+      }, err => {
+        if (err) console.error(err)
       })
       return
     }
@@ -59,6 +61,8 @@ mongo.connect(MONGO_URL).then(db => {
               })
             }
           }
+        }, err => {
+          if (err) console.error(err)
         })
       })
       return
