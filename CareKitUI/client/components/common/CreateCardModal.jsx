@@ -27,19 +27,6 @@ var CreateCardModal = React.createClass ({
             <div className="ui input">
               <input ref="message" type="text" placeholder="Enter Title"/>
             </div>
-            {
-                    this.state.inputs.map((item) => (
-                        <div className={"ui input " +item[0]["id_num"]}>
-                         {/*<a className={item[0]["id_num"]} onClick={() => this.linkify(item[0]["id_num"])}>
-                          <i className="green large link linkify icon"/>
-                         </a>*/}
-                          <input className={item[0]["id_num"]} type="text" key={item[0]["uuid"]["id"]} placeholder={"Option " + item[0].name}/>
-                          <a className={item[0]["id_num"]} onClick={() => this.removeInput(item[0]["id_num"])}>
-                            <i className="red big link remove circle icon"/>
-                          </a>
-                        </div>
-                    ))
-            }
             <div className="audio-card-upload">
             Upload Audio
              <div className="audio-upload">
@@ -53,7 +40,20 @@ var CreateCardModal = React.createClass ({
              </div>
              <textarea className="inline-textarea-input" rows="4" cols="30" placeholder="Image Description"></textarea>
             </div>
-          </div>
+            {
+                    this.state.inputs.map((item) => (
+                        <div className={"ui input " +item[0]["id_num"]}>
+                          <input className={item[0]["id_num"]} type="text" key={item[0]["uuid"]["id"]} placeholder={"Option " + item[0].name}/>
+                          <a className={item[0]["id_num"]} onClick={() => this.linkify(item[0]["id_num"])}>
+                            <i className="green large link linkify icon"/>
+                          </a>
+                          <a className={item[0]["id_num"]} onClick={() => this.removeInput(item[0]["id_num"])}>
+                            <i className="red large link remove circle icon"/>
+                          </a>
+                        </div>
+                    ))
+            }
+           </div>
            <div className="ui bottom attached button" onClick={this.addOption}>
             <i className="plus icon"/> Add Button
           </div>
@@ -65,7 +65,13 @@ var CreateCardModal = React.createClass ({
     );
   },
   linkify: function(index){
-
+    var input_string = ".ui.input." + index;
+    var text = $(input_string).children()[0].value;
+    var generated_link = $("<a href="+text+">"+text+"</a>");
+    var input = $(input_string).children()[0];
+    console.log(input);
+    $(input).css({ 'color': 'blue'});
+    $(input).html(generated_link);
   },
   removeInput: function(index){
     this.setState({
@@ -84,7 +90,6 @@ var CreateCardModal = React.createClass ({
     var buttons = [];
     for (i = 1; i < total_inputs+1; i++){
       var input_string = ".ui.input." + i;
-      console.log($(input_string).children());
       var text = $(input_string).children()[0].value;
       var new_id = input_id;
       var button = {id:new_id, text:text};
