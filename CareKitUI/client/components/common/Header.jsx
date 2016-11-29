@@ -5,7 +5,7 @@ import Blaze from 'meteor/gadicc:blaze-react-component'
 class Header extends React.Component {
   render() {
     return (
-        <div className="ui borderless massive top attached red inverted menu">
+        <div className="ui borderless massive top fixed red inverted menu">
           <div className="ui dropdown icon item" ref="headerDropdown" onClick={this.props.onOpenRecent}>
             <i className="bars icon"/>
             <div className="menu">
