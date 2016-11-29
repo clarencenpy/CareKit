@@ -4,11 +4,12 @@
   "description": "BotEngine for CareKit Platform",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js & lt --port 3004 --subdomain carekit"
+    "start": "nodemon index.js & lt --port 3004 --subdomain carekitbot"
   },
   "author": "clarencenpy",
   "license": "ISC",
   "dependencies": {
-    "messenger-bot": "^2.4.0"
+    "messenger-bot": "^2.4.0",
+    "mongodb": "^2.2.11"
   }
 }

@@ -2,41 +2,34 @@ import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {findDOMNode as getDOM}  from 'react-dom'
 import uuid from 'uuid'
+import Immutable from 'immutable'
 
 import * as jp from './JSPlumbOptions'
+import Header from './Header'
 import Card from './Card'
 import CreateCardModal from './CreateCardModal'
 import ToolsPalette from './ToolsPalette'
 
-export default class Main extends TrackerReact(React.Component) {
+export default class Main extends React.Component {
 
   constructor() {
     super()
+
     this.state = {
-      cards: []
-      // cards: [{
-      //   message: 'Card 1',
-      //   id: 'card1',
-      //   buttons: [{id: 'card1-1', text: 'Action 1', postback: 'card4'}, {id: 'card1-2', text: 'Action 2'}]
-      // }, {
-      //   message: 'Card 2',
-      //   id: 'card2',
-      //   buttons: [{id: 'card2-1', text: 'Action 1', postback: 'card4'}, {id: 'card2-2', text: 'Action 2'}]
-      // }, {
-      //   message: 'Card 3',
-      //   id: 'card3',
-      //   buttons: [{id: 'card3-1', text: 'Action 1'}, {id: 'card3-2', text: 'Action 2', postback: 'card4'}]
-      // }, {
-      //   message: 'Card 4',
-      //   id: 'card4',
-      //   buttons: [{id: 'card4-1', text: 'Action 1'}, {id: 'card4-2', text: 'Action 2'}]
-      // }]
+      cards: Immutable.List(),
+      saving: false,
+      pathwayName: 'Untitled',
+      fetchingSavedPathways: false,
+      savedPathways: [],
+      currentPathwayId: undefined
     }
   }
 
   addCard(data) {
+    data.left = 150 //default positions to place the card
+    data.top = 30
     this.setState({
-      cards: [...this.state.cards, data] //new array with the new card data added
+      cards: this.state.cards.push(Immutable.fromJS(data))
     }, () => {
       //after the card has been updated by react..
       //jsplumb does its work
@@ -53,47 +46,100 @@ export default class Main extends TrackerReact(React.Component) {
 
   render() {
     return (
-        <div ref="container" className="jp-container">
-          <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
-          <CreateCardModal onAddCard={this.addCard.bind(this)}/>
-          {
-            this.state.cards.map((card) => (
-                <Card data={card}
-                      key={card.id}
-                      onEditButton={this.onEditButton.bind(this)}
-                      onEditMessage={this.onEditMessage.bind(this)}
-                      addButton={this.addButton.bind(this)}
-                />
-            ))
-          }
+        <div>
+          <Header onSave={this.onSave.bind(this)}
+                  onDeploy={this.onDeploy.bind(this)}
+                  saving={this.state.saving}
+                  deploying={this.state.deploying}
+                  pathwayName={this.state.pathwayName}
+                  onEditPathwayName={this.onEditPathwayName.bind(this)}
+                  savedPathways={this.state.savedPathways}
+                  fetchingSavedPathways={this.state.fetchingSavedPathways}
+                  onOpenRecent={this.onOpenRecent.bind(this)}
+          />
+          <div ref="container" className="jp-container">
+            <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
+            <CreateCardModal onAddCard={this.addCard.bind(this)}/>
+            {
+              this.state.cards.map((card) => (
+                  <Card data={card.toJS()}
+                        key={card.get('id')}
+                        onEditButton={this.onEditButton.bind(this)}
+                        onEditMessage={this.onEditMessage.bind(this)}
+                        addButton={this.addButton.bind(this)}
+                  />
+              ))
+            }
+          </div>
         </div>
     )
   }
 
   componentDidMount() {
+
+    //instantiate jsplumb and get instance
     this.state.jsPlumbInstance = jsPlumb.getInstance({
       Container: getDOM(this.refs.container)
     })
 
     const jpi = this.state.jsPlumbInstance
 
-    jpi.bind('beforeDrop', (params) => {
-      //add postback messageId to the card
-      for (let card of this.state.cards) {
-        if (params.sourceId.indexOf(card.id) >= 0) {
-          let updated = false
-          for (let button of card.buttons) {
-            if (button.id === params.sourceId) {
-              button.postback = params.targetId
-              updated = true
-              break;
-            }
-          }
-          if (updated) break
+    //try to load project
+    let pathwayId = FlowRouter.getParam('id')
+    Meteor.call('getPathway', pathwayId, (err, pathway) => {
+      if (pathway) {
+        this.setState({
+          cards: Immutable.fromJS(pathway.savedState.cards),
+          pathwayName: pathway.savedState.pathwayName,
+          currentPathwayId: pathway._id
+        })
+      }
+
+      //instantiate all the endpoints
+      let cards = this.state.cards.toJS()
+      //use plain js from this point on, since no changes to state
+
+      for (let card of cards) {
+        //make the card a target
+        jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
+        //add endpoint to each button
+        for (let button of card.buttons) {
+          jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
         }
       }
+
+      //start connecting the endpoints based on established postbacks
+      for (let card of cards) {
+        for (let button of card.buttons) {
+          if (button.postback) {
+            const uuidForEndpoint = uuid.v1()
+            jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
+            jpi.connect({uuids: [button.id, uuidForEndpoint]})
+          }
+        }
+      }
+
+      //make all cards draggable
+      jpi.draggable($('.jp-draggable'))
+    })
+
+    jpi.bind('beforeDrop', (params) => {
+      //add postback messageId to the card
+      let cards = this.state.cards
+      let cardIndex = cards.findIndex(card => params.sourceId.indexOf(card.get('id')) >= 0)
+      let buttonIndex = cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === params.sourceId)
+      this.setState({
+        cards: cards.updateIn([
+          cardIndex,
+          'buttons',
+          buttonIndex,
+          'postback'
+        ], () => params.targetId)
+      })
+
       return true //permit the drop event to continue
     })
+
     jpi.bind('beforeDetach', (jp_connection) => {
       //hacky workaround for a bug that disregards target settings for
       //deleteEndpointOnDetach when the connections are drawn programatically
@@ -105,53 +151,65 @@ export default class Main extends TrackerReact(React.Component) {
       return true
     })
 
-    //instatiate all the endpoints
-    for (let card of this.state.cards) {
-      //make the card a target
-      jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
-      //add endpoint to each button
-      for (let button of card.buttons) {
-        jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
-      }
-    }
+  }
 
-    //start connecting the endpoints based on established postbacks
-    for (let card of this.state.cards) {
-      for (let button of card.buttons) {
-        if (button.postback) {
-          const uuidForEndpoint = uuid.v1()
-          jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
-          jpi.connect({uuids: [button.id, uuidForEndpoint]})
-        }
-      }
-    }
+  onEditPathwayName(data) {
+    this.setState({pathwayName: data.text})
+  }
 
-    //make all cards draggable
-    jpi.draggable($('.jp-draggable'))
+  onOpenRecent() {
+    this.setState({fetchingSavedPathways: true})
+    Meteor.call('getSavedPathways', (err, savedPathways) => {
+      this.setState({
+        fetchingSavedPathways: false,
+        savedPathways
+      })
+    })
+  }
 
+  onSave() {
+    this.setState({saving: true})
+    let cards = this.state.cards.toJS()
+    cards = cards.map(card => {
+      //append the position of every card
+      let elem = $(`#${card.id}`)
+      card.top = elem.css('top')
+      card.left = elem.css('left')
+      return card
+    })
+    let id = this.state.currentPathwayId || Random.id()
+    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName})
+    Meteor.setTimeout(() => {
+      this.setState({saving: false, currentPathwayId: id})
+    }, 1000)
+  }
+
+  onDeploy() {
+    this.setState({deploying: true})
+    Meteor.call('deploy', {
+      cards: this.state.cards.toJS(),
+      pathwayName: this.state.pathwayName,
+      id: this.state.currentPathwayId
+    })
+    Meteor.setTimeout(() => {
+      this.setState({deploying: false})
+    }, 1000)
   }
 
   onEditButton(id, data) {
     //where id is the id of the button so I can locate it
     //and data is the callback value from riek
-    let newState = JSON.parse(JSON.stringify(this.state.cards))
-    newState.map(card => {
-      card.buttons.map(button => {
-        if (button.id === id) button.text = data.text
-        return button
-      })
-      return card
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonIndex = this.state.cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === id)
+
+    this.setState({
+      cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex, 'text'], () => data.text)
     })
-    this.setState({cards: newState})
   }
 
   onEditMessage(id, data) {
-    let newState = JSON.parse(JSON.stringify(this.state.cards))
-    newState.map(card => {
-      if (card.id === id) card.message = data.message
-      return card
-    })
-    this.setState({cards: newState}, () => {
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    this.setState({cards: this.state.cards.updateIn([cardIndex, 'message'], () => data.message)}, () => {
       //since the card may now have been resized
       this.state.jsPlumbInstance.getDragManager().updateOffsets(id)
       this.state.jsPlumbInstance.repaint(id)
@@ -159,19 +217,16 @@ export default class Main extends TrackerReact(React.Component) {
   }
 
   addButton(id) {
-    let newState = JSON.parse(JSON.stringify(this.state.cards))
-    let buttonId
-    newState.forEach(card => {
-      if (card.id === id) {
-        buttonId = id + '_button' + card.buttons.length + 1
-        card.buttons.push({
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonId = `${id}_button${this.state.cards.get(cardIndex).get('buttons').size + 1}`
+    this.setState({
+      cards: this.state.cards.updateIn([cardIndex, 'buttons'], buttons => {
+        return buttons.push(Immutable.Map({
           id: buttonId,
-          text: `Action ${card.buttons.length + 1}`
-        })
-      }
-      return card
-    })
-    this.setState({cards: newState}, () => {
+          text: `Action ${buttons.size + 1}`
+        }))
+      })
+    }, () => {
       //jsPlumb to add endpoints
       const jpi = this.state.jsPlumbInstance //get the instance saved in state object
       jpi.addEndpoint(buttonId, {uuid: buttonId}, jp.ENDPOINT_SOURCE)

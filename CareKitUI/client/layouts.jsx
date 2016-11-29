@@ -4,7 +4,6 @@ import Header from './components/common/Header'
 
 export const MainLayout = ({content}) => (
     <div className="main-layout">
-      <Header/>
       {content}
     </div>
 )
