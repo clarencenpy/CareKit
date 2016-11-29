@@ -22,7 +22,7 @@ class Header extends React.Component {
                         this.props.savedPathways.length > 0 ?
                             this.props.savedPathways.map(p => (
                                 <a className="item" key={p._id}
-                                   onClick={this.gotoPathway.bind(null, p._id)}>{p.name}</a>
+                                   onClick={this.gotoPathway.bind(this, p._id, p.name)}>{p.name}</a>
                             )) : <div className="item">No Recently Saved Pathways</div>
 
                   }
@@ -88,9 +88,9 @@ class Header extends React.Component {
     location.reload()
   }
 
-  gotoPathway(id) {
+  gotoPathway(id, pathwayName) {
     FlowRouter.go(`/pathway/${id}`)
-    location.reload()
+    this.props.onChangePathway(id, pathwayName)
   }
 
 }

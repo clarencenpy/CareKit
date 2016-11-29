@@ -1,14 +1,45 @@
 import React from 'react'
-import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {findDOMNode as getDOM}  from 'react-dom'
 import uuid from 'uuid'
 import Immutable from 'immutable'
 
 import * as jp from './JSPlumbOptions'
 import Header from './Header'
-import Card from './Card'
-import CreateCardModal from './CreateCardModal'
-import ToolsPalette from './ToolsPalette'
+import Workspace from './Workspace'
+
+const jsPlumbify = (state) => {
+  let jpi = state.jsPlumbInstance
+  jpi.reset()
+
+  //instantiate all the endpoints
+  let cards = state.cards.toJS()
+  //use plain js from this point on, since no changes to state
+
+  for (let card of cards) {
+    //make the card a target
+    jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
+    //add endpoint to each button
+    for (let button of card.buttons) {
+      jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
+    }
+  }
+
+  //start connecting the endpoints based on established postbacks
+  for (let card of cards) {
+    for (let button of card.buttons) {
+      if (button.postback) {
+        const uuidForEndpoint = uuid.v1()
+        jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
+        jpi.connect({uuids: [button.id, uuidForEndpoint]})
+      }
+    }
+  }
+
+  //make all cards draggable
+  jpi.draggable($('.jp-draggable'))
+
+  jpi.repaintEverything()
+}
 
 export default class Main extends React.Component {
 
@@ -25,52 +56,30 @@ export default class Main extends React.Component {
     }
   }
 
-  addCard(data) {
-    data.left = 150 //default positions to place the card
-    data.top = 30
-    this.setState({
-      cards: this.state.cards.push(Immutable.fromJS(data))
-    }, () => {
-      //after the card has been updated by react..
-      //jsplumb does its work
-      const jpi = this.state.jsPlumbInstance //get the instance saved in state object
-      jpi.draggable($(`#${data.id}`))
-      //make the card a target
-      jpi.makeTarget(data.id, jp.ENDPOINT_TARGET)
-      //add endpoint to each button
-      data.buttons.forEach(button => {
-        jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
-      })
-    })
-  }
-
   render() {
     return (
         <div>
-          <Header onSave={this.onSave.bind(this)}
-                  onDeploy={this.onDeploy.bind(this)}
-                  saving={this.state.saving}
-                  deploying={this.state.deploying}
-                  pathwayName={this.state.pathwayName}
-                  onEditPathwayName={this.onEditPathwayName.bind(this)}
-                  savedPathways={this.state.savedPathways}
-                  fetchingSavedPathways={this.state.fetchingSavedPathways}
-                  onOpenRecent={this.onOpenRecent.bind(this)}
+          <Header
+              onChangePathway={this.onChangePathway.bind(this)}
+              onSave={this.onSave.bind(this)}
+              onDeploy={this.onDeploy.bind(this)}
+              saving={this.state.saving}
+              deploying={this.state.deploying}
+              pathwayName={this.state.pathwayName}
+              onEditPathwayName={this.onEditPathwayName.bind(this)}
+              savedPathways={this.state.savedPathways}
+              fetchingSavedPathways={this.state.fetchingSavedPathways}
+              onOpenRecent={this.onOpenRecent.bind(this)}
           />
-          <div ref="container" className="jp-container">
-            <div style={{position: 'fixed', left: 30, top: 80}}><ToolsPalette/></div>
-            <CreateCardModal onAddCard={this.addCard.bind(this)}/>
-            {
-              this.state.cards.map((card) => (
-                  <Card data={card.toJS()}
-                        key={card.get('id')}
-                        onEditButton={this.onEditButton.bind(this)}
-                        onEditMessage={this.onEditMessage.bind(this)}
-                        addButton={this.addButton.bind(this)}
-                  />
-              ))
-            }
-          </div>
+          <Workspace
+              pathwayId={this.state.currentPathwayId}
+              cards={this.state.cards}
+              addCard={this.addCard.bind(this)}
+              addButton={this.addButton.bind(this)}
+              onEditButton={this.onEditButton.bind(this)}
+              onEditMessage={this.onEditMessage.bind(this)}
+          />
+
         </div>
     )
   }
@@ -86,42 +95,16 @@ export default class Main extends React.Component {
 
     //try to load project
     let pathwayId = FlowRouter.getParam('id')
-    Meteor.call('getPathway', pathwayId, (err, pathway) => {
-      if (pathway) {
+    if (pathwayId) {
+      Meteor.call('getPathway', pathwayId, (err, pathway) => {
         this.setState({
           cards: Immutable.fromJS(pathway.savedState.cards),
           pathwayName: pathway.savedState.pathwayName,
           currentPathwayId: pathway._id
         })
-      }
-
-      //instantiate all the endpoints
-      let cards = this.state.cards.toJS()
-      //use plain js from this point on, since no changes to state
-
-      for (let card of cards) {
-        //make the card a target
-        jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
-        //add endpoint to each button
-        for (let button of card.buttons) {
-          jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
-        }
-      }
-
-      //start connecting the endpoints based on established postbacks
-      for (let card of cards) {
-        for (let button of card.buttons) {
-          if (button.postback) {
-            const uuidForEndpoint = uuid.v1()
-            jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
-            jpi.connect({uuids: [button.id, uuidForEndpoint]})
-          }
-        }
-      }
-
-      //make all cards draggable
-      jpi.draggable($('.jp-draggable'))
-    })
+        jsPlumbify(this.state)
+      })
+    }
 
     jpi.bind('beforeDrop', (params) => {
       //add postback messageId to the card
@@ -151,6 +134,37 @@ export default class Main extends React.Component {
       return true
     })
 
+  }
+
+  onChangePathway(id, pathwayName) {
+    Meteor.call('getPathway', id, (err, pathway) => {
+      this.setState({
+        currentPathwayId: id,
+        pathwayName,
+        cards: Immutable.fromJS(pathway.savedState.cards)
+      }, () => {
+        jsPlumbify(this.state)
+      })
+    })
+  }
+
+  addCard(data) {
+    data.left = 150 //default positions to place the card
+    data.top = 30
+    this.setState({
+      cards: this.state.cards.push(Immutable.fromJS(data))
+    }, () => {
+      //after the card has been updated by react..
+      //jsplumb does its work
+      const jpi = this.state.jsPlumbInstance //get the instance saved in state object
+      jpi.draggable($(`#${data.id}`))
+      //make the card a target
+      jpi.makeTarget(data.id, jp.ENDPOINT_TARGET)
+      //add endpoint to each button
+      data.buttons.forEach(button => {
+        jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
+      })
+    })
   }
 
   onEditPathwayName(data) {
