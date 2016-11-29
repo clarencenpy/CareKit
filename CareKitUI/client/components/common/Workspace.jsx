@@ -2,6 +2,8 @@ import React from 'react'
 import Card from './Card'
 import CreateCardModal from './CreateCardModal'
 import ToolsPalette from './ToolsPalette'
+import Dimmer from './Dimmer'
+
 
 export default class Workspace extends React.Component {
   render() {
@@ -19,12 +21,8 @@ export default class Workspace extends React.Component {
                 />
             ))
           }
+          <Dimmer show={this.props.loading}/>
         </div>
     )
   }
-
-  // componentDidUpdate() {
-  //   console.log('Reseting workspace')
-  //   Meteor.setTimeout(this.props.onRendered, 300)
-  // }
 }

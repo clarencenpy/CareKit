@@ -49,6 +49,8 @@ export default class Main extends React.Component {
     this.state = {
       cards: Immutable.List(),
       saving: false,
+      deploying: false,
+      loading: true,
       pathwayName: 'Untitled',
       fetchingSavedPathways: false,
       savedPathways: [],
@@ -72,6 +74,7 @@ export default class Main extends React.Component {
               onOpenRecent={this.onOpenRecent.bind(this)}
           />
           <Workspace
+              loading={this.state.loading}
               pathwayId={this.state.currentPathwayId}
               cards={this.state.cards}
               addCard={this.addCard.bind(this)}
@@ -103,7 +106,10 @@ export default class Main extends React.Component {
           currentPathwayId: pathway._id
         })
         jsPlumbify(this.state)
+        this.setState({loading: false})
       })
+    } else {
+      this.setState({loading: false})
     }
 
     jpi.bind('beforeDrop', (params) => {
@@ -137,6 +143,7 @@ export default class Main extends React.Component {
   }
 
   onChangePathway(id, pathwayName) {
+    this.setState({loading: true})
     Meteor.call('getPathway', id, (err, pathway) => {
       this.setState({
         currentPathwayId: id,
@@ -144,6 +151,7 @@ export default class Main extends React.Component {
         cards: Immutable.fromJS(pathway.savedState.cards)
       }, () => {
         jsPlumbify(this.state)
+        this.setState({loading: false})
       })
     })
   }
