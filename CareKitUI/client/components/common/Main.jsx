@@ -144,16 +144,23 @@ export default class Main extends React.Component {
 
   onChangePathway(id, pathwayName) {
     this.setState({loading: true})
+    let returned = false
+    let minDurationPassed = false
     Meteor.call('getPathway', id, (err, pathway) => {
       this.setState({
         currentPathwayId: id,
         pathwayName,
         cards: Immutable.fromJS(pathway.savedState.cards)
       }, () => {
+        returned = true
         jsPlumbify(this.state)
-        this.setState({loading: false})
+        if (minDurationPassed) this.setState({loading: false})
       })
     })
+    setTimeout(() => {
+      minDurationPassed = true
+      if (returned) this.setState({loading: false})
+    }, 1000)
   }
 
   addCard(data) {
@@ -200,21 +207,34 @@ export default class Main extends React.Component {
       return card
     })
     let id = this.state.currentPathwayId || Random.id()
-    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName})
-    Meteor.setTimeout(() => {
-      this.setState({saving: false, currentPathwayId: id})
+    let returned = false
+    let minDurationPassed = false
+    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName}, () => {
+      returned = true
+      if (minDurationPassed) this.setState({deploying: false})
+    })
+    setTimeout(() => {
+      minDurationPassed = true
+      if (returned) this.setState({saving: false, currentPathwayId: id})
+
     }, 1000)
   }
 
   onDeploy() {
     this.setState({deploying: true})
+    let returned = false
+    let minDurationPassed = false
     Meteor.call('deploy', {
       cards: this.state.cards.toJS(),
       pathwayName: this.state.pathwayName,
       id: this.state.currentPathwayId
+    }, () => {
+      returned = true
+      if (minDurationPassed) this.setState({deploying: false})
     })
-    Meteor.setTimeout(() => {
-      this.setState({deploying: false})
+    setTimeout(() => {
+      minDurationPassed = true
+      if (returned) this.setState({deploying: false})
     }, 1000)
   }
 
