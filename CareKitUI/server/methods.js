@@ -20,10 +20,10 @@ Meteor.methods({
     }, {upsert: true})
   },
 
-  deploy({cards, pathwayName}) {
-
+  deploy({cards, pathwayName, id}) {
     //add entrypoint
-    Messages.insert({
+    Messages.update({_id: id}, {
+      _id: id,
       entrypoint: true,
       contents: {
         title: pathwayName,
@@ -33,7 +33,7 @@ Meteor.methods({
           payload: cards[0].id
         }]
       }
-    })
+    }, {upsert: true})
 
     //transform each card into the format messenger requires
     cards = cards.map(card => {

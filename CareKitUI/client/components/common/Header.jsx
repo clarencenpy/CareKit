@@ -63,7 +63,8 @@ class Header extends React.Component {
               {this.props.saving ? <i className="notched circle loading icon"/> : <i className="save icon"/>} Save
             </a>
             <a className="ui item" onClick={this.props.onDeploy}>
-              <i className="cloud upload icon"/> Deploy
+              {this.props.deploying ? <i className="notched circle loading icon"/> : <i className="cloud upload icon"/>}
+              Deploy
             </a>
             <a className="ui active item">
               <Blaze template="loginButtons"/>

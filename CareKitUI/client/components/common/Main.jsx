@@ -21,7 +21,7 @@ export default class Main extends React.Component {
       pathwayName: 'Untitled',
       fetchingSavedPathways: false,
       savedPathways: [],
-      currentPathwayId: null
+      currentPathwayId: undefined
     }
   }
 
@@ -50,6 +50,7 @@ export default class Main extends React.Component {
           <Header onSave={this.onSave.bind(this)}
                   onDeploy={this.onDeploy.bind(this)}
                   saving={this.state.saving}
+                  deploying={this.state.deploying}
                   pathwayName={this.state.pathwayName}
                   onEditPathwayName={this.onEditPathwayName.bind(this)}
                   savedPathways={this.state.savedPathways}
@@ -185,10 +186,14 @@ export default class Main extends React.Component {
 
   onDeploy() {
     this.setState({deploying: true})
-    Meteor.call('deploy', {cards: this.state.cards.toJS(), pathwayName: this.state.pathwayName}, (err) => {
-      if (err) console.log(err)
-      this.setState({deploying: false})
+    Meteor.call('deploy', {
+      cards: this.state.cards.toJS(),
+      pathwayName: this.state.pathwayName,
+      id: this.state.currentPathwayId
     })
+    Meteor.setTimeout(() => {
+      this.setState({deploying: false})
+    }, 1000)
   }
 
   onEditButton(id, data) {
