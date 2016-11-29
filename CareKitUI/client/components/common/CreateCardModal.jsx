@@ -14,14 +14,10 @@ var CreateCardModal = React.createClass ({
       var new_id_number = this.state.inputs.length + 1;
       var new_option_number = this.state.inputs.length + 1;
       var id = uuid.v1();
-      console.log(this.state);
       var new_input = this.state.inputs.push([{
         id_num:new_id_number, name:new_option_number, uuid:{id}
       }]);
       this.setState({new_input});
-      var newArray = this.state.inputs.map(function(obj){
-        console.log(obj[0].uuid.id);
-      });
   },
   render: function() {
     return (
@@ -33,7 +29,7 @@ var CreateCardModal = React.createClass ({
             </div>
             {
                     this.state.inputs.map((item) => (
-                        <div className="ui input">
+                        <div className={"ui input " +item[0]["id_num"]}>
                          {/*<a className={item[0]["id_num"]} onClick={() => this.linkify(item[0]["id_num"])}>
                           <i className="green large link linkify icon"/>
                          </a>*/}
@@ -55,9 +51,7 @@ var CreateCardModal = React.createClass ({
              <div className="image-upload">
               <input type="file" name="pic" accept="image/*"></input>
              </div>
-             <div className="ui input">
-              <textarea rows="4" cols="30" placeholder="Image Description"></textarea>
-             </div>
+             <textarea className="inline-textarea-input" rows="4" cols="30" placeholder="Image Description"></textarea>
             </div>
           </div>
            <div className="ui bottom attached button" onClick={this.addOption}>
@@ -83,25 +77,26 @@ var CreateCardModal = React.createClass ({
     this.setState(this.getInitialState);
   },
   addCard: function() {
-    this.setState(this.getInitialState);
+    var total_inputs = this.state.inputs.length;
     const id = uuid.v1()
     const message = getDOM(this.refs.message).value
-
     var input_id = 0;
     var buttons = [];
-    $(".ui.input :input").each(function() {
-      var text = $(this).text();
-      var id = input_id;
-      input_id = input_id + 1;
-      var button = {id:id, text:text};
+    for (i = 1; i < total_inputs+1; i++){
+      var input_string = ".ui.input." + i;
+      console.log($(input_string).children());
+      var text = $(input_string).children()[0].value;
+      var new_id = input_id;
+      var button = {id:new_id, text:text};
+      new_id = new_id + 1;
       buttons.push(button);
-    });
-
+    }
     this.props.onAddCard({
       id,
       message,
       buttons: buttons
     })
+    this.setState(this.getInitialState);
   }
 });
 
