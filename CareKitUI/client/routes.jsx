@@ -12,3 +12,11 @@ FlowRouter.route('/', {
     })
   }
 })
+
+FlowRouter.route('/pathway/:id', {
+  action () {
+    mount(MainLayout, {
+      content: (<Main />)
+    })
+  }
+})

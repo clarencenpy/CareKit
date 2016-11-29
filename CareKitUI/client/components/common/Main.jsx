@@ -14,12 +14,14 @@ export default class Main extends React.Component {
 
   constructor() {
     super()
+
     this.state = {
       cards: Immutable.List(),
       saving: false,
       pathwayName: 'Untitled',
       fetchingSavedPathways: false,
-      savedPathways: []
+      savedPathways: [],
+      currentPathwayId: null
     }
   }
 
@@ -46,6 +48,7 @@ export default class Main extends React.Component {
     return (
         <div>
           <Header onSave={this.onSave.bind(this)}
+                  onDeploy={this.onDeploy.bind(this)}
                   saving={this.state.saving}
                   pathwayName={this.state.pathwayName}
                   onEditPathwayName={this.onEditPathwayName.bind(this)}
@@ -72,11 +75,52 @@ export default class Main extends React.Component {
   }
 
   componentDidMount() {
+
+    //instantiate jsplumb and get instance
     this.state.jsPlumbInstance = jsPlumb.getInstance({
       Container: getDOM(this.refs.container)
     })
 
     const jpi = this.state.jsPlumbInstance
+
+    //try to load project
+    let pathwayId = FlowRouter.getParam('id')
+    Meteor.call('getPathway', pathwayId, (err, pathway) => {
+      if (pathway) {
+        this.setState({
+          cards: Immutable.fromJS(pathway.savedState.cards),
+          pathwayName: pathway.savedState.pathwayName,
+          currentPathwayId: pathway._id
+        })
+      }
+
+      //instantiate all the endpoints
+      let cards = this.state.cards.toJS()
+      //use plain js from this point on, since no changes to state
+
+      for (let card of cards) {
+        //make the card a target
+        jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
+        //add endpoint to each button
+        for (let button of card.buttons) {
+          jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
+        }
+      }
+
+      //start connecting the endpoints based on established postbacks
+      for (let card of cards) {
+        for (let button of card.buttons) {
+          if (button.postback) {
+            const uuidForEndpoint = uuid.v1()
+            jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
+            jpi.connect({uuids: [button.id, uuidForEndpoint]})
+          }
+        }
+      }
+
+      //make all cards draggable
+      jpi.draggable($('.jp-draggable'))
+    })
 
     jpi.bind('beforeDrop', (params) => {
       //add postback messageId to the card
@@ -106,33 +150,6 @@ export default class Main extends React.Component {
       return true
     })
 
-    //instantiate all the endpoints
-    let cards = this.state.cards.toJS()
-    //use plain js from this point on, since no changes to state
-
-    for (let card of cards) {
-      //make the card a target
-      jpi.makeTarget(card.id, jp.ENDPOINT_TARGET)
-      //add endpoint to each button
-      for (let button of card.buttons) {
-        jpi.addEndpoint(button.id, {uuid: button.id}, jp.ENDPOINT_SOURCE)
-      }
-    }
-
-    //start connecting the endpoints based on established postbacks
-    for (let card of cards) {
-      for (let button of card.buttons) {
-        if (button.postback) {
-          const uuidForEndpoint = uuid.v1()
-          jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
-          jpi.connect({uuids: [button.id, uuidForEndpoint]})
-        }
-      }
-    }
-
-    //make all cards draggable
-    jpi.draggable($('.jp-draggable'))
-
   }
 
   onEditPathwayName(data) {
@@ -151,9 +168,26 @@ export default class Main extends React.Component {
 
   onSave() {
     this.setState({saving: true})
+    let cards = this.state.cards.toJS()
+    cards = cards.map(card => {
+      //append the position of every card
+      let elem = $(`#${card.id}`)
+      card.top = elem.css('top')
+      card.left = elem.css('left')
+      return card
+    })
+    let id = this.state.currentPathwayId || Random.id()
+    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName})
+    Meteor.setTimeout(() => {
+      this.setState({saving: false, currentPathwayId: id})
+    }, 1000)
+  }
+
+  onDeploy() {
+    this.setState({deploying: true})
     Meteor.call('deploy', {cards: this.state.cards.toJS(), pathwayName: this.state.pathwayName}, (err) => {
       if (err) console.log(err)
-      this.setState({saving: false})
+      this.setState({deploying: false})
     })
   }
 
