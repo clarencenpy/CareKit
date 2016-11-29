@@ -9,7 +9,7 @@ class Header extends React.Component {
           <div className="ui dropdown icon item" ref="headerDropdown" onClick={this.props.onOpenRecent}>
             <i className="bars icon"/>
             <div className="menu">
-              <div className="item">
+              <div className="item" onClick={this.gotoNew}>
                 New Pathway
               </div>
               <div className="item">
@@ -80,6 +80,11 @@ class Header extends React.Component {
 
   componentDidUpdate() {
     $(this.refs.headerDropdown).dropdown('refresh')
+  }
+
+  gotoNew() {
+    FlowRouter.go('/new')
+    location.reload()
   }
 
   gotoPathway(id) {
