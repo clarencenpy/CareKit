@@ -36,7 +36,7 @@ Meteor.methods({
     }, {upsert: true})
 
     //transform each card into the format messenger requires
-    cards = cards.map(card => {
+    cards.forEach(card => {
       let output = {
         name: card.id,
         contents: {
@@ -47,17 +47,20 @@ Meteor.methods({
               text: card.message,
               buttons: card.buttons.map(b => {
                 return {
-                  id: b.id,
                   type: b.type,
                   title: b.title,
-                  payload: b.type === 'web_url' ? '' : b.payload,
-                  web_url: b.type === 'web_url' ? b.payload : ''
+                  payload: b.type === 'web_url' ? null : b.payload,
+                  url: b.type === 'web_url' ? b.payload : null
                 }
               })
             }
           }
         }
       }
+
+      // output.$unset = {}
+      // if (b.type === 'url') output.$unset.payload = true
+      // if (b.type !== 'url') output.$unset.url = true
 
       Messages.update({name: output.name}, output, {upsert: true})
     })
