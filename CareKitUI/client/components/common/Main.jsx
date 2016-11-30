@@ -11,6 +11,11 @@ const jsPlumbify = (state) => {
   let jpi = state.jsPlumbInstance
   jpi.reset()
 
+  jpi.registerConnectionType('basic', {
+    paintStyle: {strokeWidth: 3},
+    hoverPaintStyle: {stroke: 'blue', strokeWidth: 5}
+  })
+
   //instantiate all the endpoints
   let cards = state.cards.toJS()
   //use plain js from this point on, since no changes to state
@@ -30,7 +35,7 @@ const jsPlumbify = (state) => {
       if (button.postback) {
         const uuidForEndpoint = uuid.v1()
         jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
-        jpi.connect({uuids: [button.id, uuidForEndpoint]})
+        jpi.connect({uuids: [button.id, uuidForEndpoint], type: 'basic'})
       }
     }
   }

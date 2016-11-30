@@ -1,5 +1,6 @@
 export const ENDPOINT_COMMON = {
   connector: ['Flowchart', {cornerRadius: 10}],
+  connectionType: 'basic'
 }
 
 export const ENDPOINT_SOURCE = {
