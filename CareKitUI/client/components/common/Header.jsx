@@ -1,6 +1,7 @@
 import React from 'react'
 import {RIEInput} from 'riek'
 import Blaze from 'meteor/gadicc:blaze-react-component'
+import uuid from 'uuid'
 
 class Header extends React.Component {
   render() {
@@ -9,7 +10,7 @@ class Header extends React.Component {
           <div className="ui dropdown icon item" ref="headerDropdown" onClick={this.props.onOpenRecent}>
             <i className="bars icon"/>
             <div className="menu">
-              <div className="item" onClick={this.gotoNew}>
+              <div className="item" onClick={this.gotoNew.bind(this)}>
                 New Pathway
               </div>
               <div className="item">
@@ -85,7 +86,7 @@ class Header extends React.Component {
 
   gotoNew() {
     FlowRouter.go('/new')
-    location.reload()
+    this.props.onChangePathway(uuid.v1(), 'Untitled')
   }
 
   gotoPathway(id, pathwayName) {

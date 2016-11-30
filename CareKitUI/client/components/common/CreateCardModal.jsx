@@ -29,12 +29,15 @@ class CreateCardModal extends React.Component {
   addCard() {
     const id = uuid.v1()
     const message = getDOM(this.refs.message).value
-    const button1Text = getDOM(this.refs.button1).value
-    const button2Text = getDOM(this.refs.button2).value
+    const button1Text = getDOM(this.refs.button1).value || ''
+    const button2Text = getDOM(this.refs.button2).value || ''
     this.props.onAddCard({
       id,
       message,
-      buttons: [{id: `${id}_button1`, text: button1Text}, {id: `${id}_button2`, text: button2Text}]
+      buttons: [
+        {id: `${id}_button1`, title: button1Text, type: 'postback'},
+        {id: `${id}_button2`, title: button2Text, type: 'postback'}
+      ]
     })
   }
 }

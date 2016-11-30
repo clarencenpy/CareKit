@@ -47,9 +47,11 @@ Meteor.methods({
               text: card.message,
               buttons: card.buttons.map(b => {
                 return {
-                  type: 'postback',
-                  title: b.text,
-                  payload: b.postback
+                  id: b.id,
+                  type: b.type,
+                  title: b.title,
+                  payload: b.type === 'web_url' ? '' : b.payload,
+                  web_url: b.type === 'web_url' ? b.payload : ''
                 }
               })
             }

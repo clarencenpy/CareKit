@@ -7,14 +7,14 @@ import * as jp from './JSPlumbOptions'
 import Header from './Header'
 import Workspace from './Workspace'
 
-const jsPlumbify = (state) => {
-  let jpi = state.jsPlumbInstance
+const jsPlumbify = (component) => {
+  let jpi = component.state.jsPlumbInstance
   jpi.reset()
 
   jpi.registerConnectionType('basic', jp.CONNECTION_STYLE)
 
   //instantiate all the endpoints
-  let cards = state.cards.toJS()
+  let cards = component.state.cards.toJS()
   //use plain js from this point on, since no changes to state
 
   for (let card of cards) {
@@ -29,9 +29,9 @@ const jsPlumbify = (state) => {
   //start connecting the endpoints based on established postbacks
   for (let card of cards) {
     for (let button of card.buttons) {
-      if (button.postback) {
+      if (button.type === 'postback' && button.payload) {
         const uuidForEndpoint = uuid.v1()
-        jpi.addEndpoint(button.postback, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
+        jpi.addEndpoint(button.payload, {uuid: uuidForEndpoint}, jp.ENDPOINT_TARGET)
         jpi.connect({uuids: [button.id, uuidForEndpoint], type: 'basic'})
       }
     }
@@ -42,15 +42,15 @@ const jsPlumbify = (state) => {
 
   jpi.bind('beforeDrop', (params) => {
     //add postback messageId to the card
-    let cards = this.state.cards
+    let cards = component.state.cards
     let cardIndex = cards.findIndex(card => params.sourceId.indexOf(card.get('id')) >= 0)
     let buttonIndex = cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === params.sourceId)
-    this.setState({
+    component.setState({
       cards: cards.updateIn([
         cardIndex,
         'buttons',
         buttonIndex,
-        'postback'
+        'payload'
       ], () => params.targetId)
     })
 
@@ -109,9 +109,11 @@ export default class Main extends React.Component {
               pathwayId={this.state.currentPathwayId}
               cards={this.state.cards}
               addCard={this.addCard.bind(this)}
-              addButton={this.addButton.bind(this)}
-              onEditButton={this.onEditButton.bind(this)}
+              onAddButton={this.onAddButton.bind(this)}
+              onEditButtonTitle={this.onEditButtonTitle.bind(this)}
               onEditMessage={this.onEditMessage.bind(this)}
+              onSelectType={this.onSelectType.bind(this)}
+              onDeleteButton={this.onDeleteButton.bind(this)}
           />
 
         </div>
@@ -132,13 +134,15 @@ export default class Main extends React.Component {
         this.setState({
           cards: Immutable.fromJS(pathway.savedState.cards),
           pathwayName: pathway.savedState.pathwayName,
-          currentPathwayId: pathway._id
+          currentPathwayId: pathway._id,
+          loading: false
+        }, () => {
+          jsPlumbify(this)
         })
-        jsPlumbify(this.state)
-        this.setState({loading: false})
       })
     } else {
       this.setState({loading: false})
+      jsPlumbify(this)
     }
   }
 
@@ -150,10 +154,10 @@ export default class Main extends React.Component {
       this.setState({
         currentPathwayId: id,
         pathwayName,
-        cards: Immutable.fromJS(pathway.savedState.cards)
+        cards: pathway ? Immutable.fromJS(pathway.savedState.cards) : Immutable.List()
       }, () => {
         returned = true
-        jsPlumbify(this.state)
+        jsPlumbify(this)
         if (minDurationPassed) this.setState({loading: false})
       })
     })
@@ -165,7 +169,7 @@ export default class Main extends React.Component {
 
   addCard(data) {
     data.left = 150 //default positions to place the card
-    data.top = 30
+    data.top = 130
     this.setState({
       cards: this.state.cards.push(Immutable.fromJS(data))
     }, () => {
@@ -238,34 +242,24 @@ export default class Main extends React.Component {
     }, 1000)
   }
 
-  onEditButton(id, data) {
-    //where id is the id of the button so I can locate it
-    //and data is the callback value from riek
-    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
-    let buttonIndex = this.state.cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === id)
-
-    this.setState({
-      cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex, 'text'], () => data.text)
-    })
-  }
-
   onEditMessage(id, data) {
-    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let cardIndex = this.state.cards.findIndex(card => id === card.get('id'))
     this.setState({cards: this.state.cards.updateIn([cardIndex, 'message'], () => data.message)}, () => {
       //since the card may now have been resized
-      this.state.jsPlumbInstance.getDragManager().updateOffsets(id)
+      this.state.jsPlumbInstance.recalculateOffsets(id)
       this.state.jsPlumbInstance.repaint(id)
     })
   }
 
-  addButton(id) {
+  onAddButton(id) {
     let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
     let buttonId = `${id}_button${this.state.cards.get(cardIndex).get('buttons').size + 1}`
     this.setState({
       cards: this.state.cards.updateIn([cardIndex, 'buttons'], buttons => {
         return buttons.push(Immutable.Map({
           id: buttonId,
-          text: `Action ${buttons.size + 1}`
+          title: `Action ${buttons.size + 1}`,
+          type: 'postback'
         }))
       })
     }, () => {
@@ -273,5 +267,80 @@ export default class Main extends React.Component {
       const jpi = this.state.jsPlumbInstance //get the instance saved in state object
       jpi.addEndpoint(buttonId, {uuid: buttonId}, jp.ENDPOINT_SOURCE)
     })
+  }
+
+  onEditButtonTitle(id, data) {
+    //where id is the id of the button so I can locate it
+    //and data is the callback value from riek
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonIndex = this.state.cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === id)
+
+    this.setState({
+      cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex, 'title'], () => data.text)
+    })
+  }
+
+  onSelectType(id, type, data) {
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonIndex = this.state.cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === id)
+    let button = this.state.cards.get(cardIndex).get('buttons').get(buttonIndex).toJS()
+    switch (type) {
+      case 'message':
+        this.setState({
+          cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex], () => {
+            return Immutable.fromJS({
+              id: button.id,
+              title: button.title,
+              type: 'postback'
+            })
+          })
+        })
+        break
+
+      case 'url':
+        this.setState({
+          cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex], () => {
+            return Immutable.fromJS({
+              id: button.id,
+              title: button.title,
+              type: 'web_url',
+              payload: data //to change to web_url
+            })
+          })
+        })
+        break
+
+      case 'call':
+        this.setState({
+          cards: this.state.cards.updateIn([cardIndex, 'buttons', buttonIndex], () => {
+            return Immutable.fromJS({
+              id: button.id,
+              title: button.title,
+              type: 'phone_number',
+              payload: data
+            })
+          })
+        })
+        break
+    }
+  }
+
+  onDeleteButton(id) {
+    let cardIndex = this.state.cards.findIndex(card => id.indexOf(card.get('id')) >= 0)
+    let buttonIndex = this.state.cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === id)
+    let jpi = this.state.jsPlumbInstance
+    this.setState({
+      cards: this.state.cards.updateIn([cardIndex, 'buttons'], buttons => {
+        return buttons.filter(b => {
+          return b.get('id') !== id
+        })
+      })
+    }, () => {
+      let cardId = id.substring(0, id.indexOf('_'))
+      jpi.recalculateOffsets(cardId)
+      jpi.repaint(cardId)
+    })
+    jpi.deleteEndpoint(id)
+
   }
 }

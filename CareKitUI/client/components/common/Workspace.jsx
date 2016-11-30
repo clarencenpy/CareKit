@@ -15,9 +15,11 @@ export default class Workspace extends React.Component {
             this.props.cards.map((card) => (
                 <Card data={card.toJS()}
                       key={card.get('id')}
-                      onEditButton={this.props.onEditButton}
+                      onEditButtonTitle={this.props.onEditButtonTitle}
                       onEditMessage={this.props.onEditMessage}
-                      addButton={this.props.addButton}
+                      onAddButton={this.props.onAddButton}
+                      onSelectType={this.props.onSelectType}
+                      onDeleteButton={this.props.onDeleteButton}
                 />
             ))
           }
