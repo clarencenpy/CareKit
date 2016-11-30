@@ -58,10 +58,6 @@ Meteor.methods({
         }
       }
 
-      // output.$unset = {}
-      // if (b.type === 'url') output.$unset.payload = true
-      // if (b.type !== 'url') output.$unset.url = true
-
       Messages.update({name: output.name}, output, {upsert: true})
     })
   }

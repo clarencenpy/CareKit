@@ -9,8 +9,7 @@ export default class Workspace extends React.Component {
   render() {
     return (
         <div ref="container" className="jp-container">
-          <ToolsPalette/>
-          <CreateCardModal onAddCard={this.props.addCard}/>
+          <ToolsPalette onAddCard={this.props.onAddCard}/>
           {
             this.props.cards.map((card) => (
                 <Card data={card.toJS()}

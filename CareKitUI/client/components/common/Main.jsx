@@ -108,7 +108,7 @@ export default class Main extends React.Component {
               loading={this.state.loading}
               pathwayId={this.state.currentPathwayId}
               cards={this.state.cards}
-              addCard={this.addCard.bind(this)}
+              onAddCard={this.onAddCard.bind(this)}
               onAddButton={this.onAddButton.bind(this)}
               onEditButtonTitle={this.onEditButtonTitle.bind(this)}
               onEditMessage={this.onEditMessage.bind(this)}
@@ -167,7 +167,13 @@ export default class Main extends React.Component {
     }, 1000)
   }
 
-  addCard(data) {
+  onAddCard() {
+    let data = {
+      id: uuid.v1(),
+      message: '',
+      buttons: []
+    }
+
     data.left = 150 //default positions to place the card
     data.top = 130
     this.setState({
