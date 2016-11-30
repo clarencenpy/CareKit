@@ -8,7 +8,7 @@ import Dimmer from './Dimmer'
 export default class Workspace extends React.Component {
   render() {
     return (
-        <div ref="container" className="jp-container main-container">
+        <div ref="container" className="jp-container">
           <div style={{position: 'fixed', left: 30, top: 90}}><ToolsPalette/></div>
           <CreateCardModal onAddCard={this.props.addCard}/>
           {
