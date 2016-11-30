@@ -11,10 +11,7 @@ const jsPlumbify = (state) => {
   let jpi = state.jsPlumbInstance
   jpi.reset()
 
-  jpi.registerConnectionType('basic', {
-    paintStyle: {strokeWidth: 3},
-    hoverPaintStyle: {stroke: 'blue', strokeWidth: 5}
-  })
+  jpi.registerConnectionType('basic', jp.CONNECTION_STYLE)
 
   //instantiate all the endpoints
   let cards = state.cards.toJS()
