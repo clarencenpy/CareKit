@@ -9,7 +9,7 @@ export default class Workspace extends React.Component {
   render() {
     return (
         <div ref="container" className="jp-container">
-          <div style={{position: 'fixed', left: 30, top: 90}}><ToolsPalette/></div>
+          <ToolsPalette/>
           <CreateCardModal onAddCard={this.props.addCard}/>
           {
             this.props.cards.map((card) => (

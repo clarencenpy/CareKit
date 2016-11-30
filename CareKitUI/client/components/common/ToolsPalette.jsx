@@ -3,7 +3,7 @@ import React from 'react'
 class ToolsPalette extends React.Component {
   render() {
     return (
-        <div className="ui vertical labeled icon menu">
+        <div className="ui vertical labeled icon menu toolsPalette">
           <a className="item" onClick={this.showCreateCardModal}>
             <i className="file text outline icon"/>
             Text
