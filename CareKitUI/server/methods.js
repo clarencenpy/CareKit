@@ -37,28 +37,38 @@ Meteor.methods({
 
     //transform each card into the format messenger requires
     cards.forEach(card => {
-      let output = {
-        name: card.id,
-        contents: {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'button',
-              text: card.message,
-              buttons: card.buttons.map(b => {
-                return {
-                  type: b.type,
-                  title: b.title,
-                  payload: b.type === 'web_url' ? null : b.payload,
-                  url: b.type === 'web_url' ? b.payload : null
-                }
-              })
+      if (card.buttons.length > 0) {
+        let output = {
+          name: card.id,
+          contents: {
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'button',
+                text: card.message,
+                buttons: card.buttons.map(b => {
+                  return {
+                    type: b.type,
+                    title: b.title,
+                    payload: b.type === 'web_url' ? null : b.payload,
+                    url: b.type === 'web_url' ? b.payload : null
+                  }
+                })
+              }
             }
           }
         }
-      }
+        Messages.update({name: output.name}, output, {upsert: true})
 
-      Messages.update({name: output.name}, output, {upsert: true})
+      } else {
+        //card has no buttons
+        Messages.update({name: card.id}, {
+          name: card.id,
+          contents: {
+            text: card.message
+          }
+        }, {upsert: true})
+      }
     })
   }
 })
