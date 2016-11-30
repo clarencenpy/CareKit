@@ -38,6 +38,35 @@ const jsPlumbify = (state) => {
   //make all cards draggable
   jpi.draggable($('.jp-draggable'))
 
+  jpi.bind('beforeDrop', (params) => {
+    //add postback messageId to the card
+    let cards = this.state.cards
+    let cardIndex = cards.findIndex(card => params.sourceId.indexOf(card.get('id')) >= 0)
+    let buttonIndex = cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === params.sourceId)
+    this.setState({
+      cards: cards.updateIn([
+        cardIndex,
+        'buttons',
+        buttonIndex,
+        'postback'
+      ], () => params.targetId)
+    })
+
+    return true //permit the drop event to continue
+  })
+
+  jpi.bind('beforeDetach', (jp_connection) => {
+    //hacky workaround for a bug that disregards target settings for
+    //deleteEndpointOnDetach when the connections are drawn programatically
+    let clone = {...jp_connection}
+    setTimeout(() => { //setting timeout to allow connection to be deleted first
+      //manually remove endpoint
+      jpi.deleteEndpoint(clone.endpoints[1])
+    }, 50)
+    return true
+  })
+
+
   jpi.repaintEverything()
 }
 
@@ -94,8 +123,6 @@ export default class Main extends React.Component {
       Container: getDOM(this.refs.container)
     })
 
-    const jpi = this.state.jsPlumbInstance
-
     //try to load project
     let pathwayId = FlowRouter.getParam('id')
     if (pathwayId) {
@@ -111,35 +138,6 @@ export default class Main extends React.Component {
     } else {
       this.setState({loading: false})
     }
-
-    jpi.bind('beforeDrop', (params) => {
-      //add postback messageId to the card
-      let cards = this.state.cards
-      let cardIndex = cards.findIndex(card => params.sourceId.indexOf(card.get('id')) >= 0)
-      let buttonIndex = cards.get(cardIndex).get('buttons').findIndex(button => button.get('id') === params.sourceId)
-      this.setState({
-        cards: cards.updateIn([
-          cardIndex,
-          'buttons',
-          buttonIndex,
-          'postback'
-        ], () => params.targetId)
-      })
-
-      return true //permit the drop event to continue
-    })
-
-    jpi.bind('beforeDetach', (jp_connection) => {
-      //hacky workaround for a bug that disregards target settings for
-      //deleteEndpointOnDetach when the connections are drawn programatically
-      let clone = {...jp_connection}
-      setTimeout(() => { //setting timeout to allow connection to be deleted first
-        //manually remove endpoint
-        jpi.deleteEndpoint(clone.endpoints[1])
-      }, 50)
-      return true
-    })
-
   }
 
   onChangePathway(id, pathwayName) {
