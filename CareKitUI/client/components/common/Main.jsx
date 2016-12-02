@@ -150,20 +150,32 @@ export default class Main extends React.Component {
     this.setState({loading: true})
     let returned = false
     let minDurationPassed = false
+    let p
     Meteor.call('getPathway', id, (err, pathway) => {
-      this.setState({
-        currentPathwayId: id,
-        pathwayName,
-        cards: pathway ? Immutable.fromJS(pathway.savedState.cards) : Immutable.List()
-      }, () => {
-        returned = true
-        jsPlumbify(this)
-        if (minDurationPassed) this.setState({loading: false})
-      })
+      p = pathway
+      returned = true
+      if (minDurationPassed) {
+        this.setState({
+          loading: false,
+          currentPathwayId: id,
+          pathwayName,
+          cards: pathway ? Immutable.fromJS(pathway.savedState.cards) : Immutable.List()
+        }, () => {
+          jsPlumbify(this)
+        })
+      }
     })
     setTimeout(() => {
       minDurationPassed = true
-      if (returned) this.setState({loading: false})
+      if (returned) this.setState({
+        loading: false,
+        currentPathwayId: id,
+        pathwayName,
+        cards: p ? Immutable.fromJS(p.savedState.cards) : Immutable.List()
+      }, () => {
+        jsPlumbify(this)
+      })
+
     }, 1000)
   }
 
