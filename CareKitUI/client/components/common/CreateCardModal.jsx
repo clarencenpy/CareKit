@@ -5,7 +5,7 @@ import {findDOMNode as getDOM}  from 'react-dom'
 class CreateCardModal extends React.Component {
   render() {
     return (
-        <div className="ui modal">
+        <div className="ui modal newCard">
           <div className="header">Create Card</div>
           <div className="content">
             <div className="ui input">
@@ -22,11 +22,12 @@ class CreateCardModal extends React.Component {
             <div className="ui green approve button" onClick={this.addCard.bind(this)}>Create</div>
             <div className="ui red cancel button">Cancel</div>
           </div>
-        </div>
+        </div> 
     )
   }
 
   addCard() {
+    console.log("adding a card");
     const id = uuid.v1()
     const message = getDOM(this.refs.message).value
     const button1Text = getDOM(this.refs.button1).value || ''

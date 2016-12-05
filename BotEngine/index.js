@@ -1,3 +1,4 @@
+"use strict";
 const http = require('http')
 const Bot = require('messenger-bot')
 const mongo = require('mongodb').MongoClient
@@ -22,6 +23,33 @@ mongo.connect(MONGO_URL).then(db => {
     console.log(payload)
 
     let text = payload.message.text
+    console.log(text)
+
+    let keywordQuery = Messages.find({name: "keywords"}).toArray();
+    keywordQuery.then(message => {
+      if (message.length != 0) {
+        var keywordMap = message[0]["keywordMap"];
+      }
+      if (text in keywordMap) {
+        var entrypoints = keywordMap[text];
+        let allEntries = Messages.find({_id: { $in : entrypoints }}).toArray();
+        allEntries.then(messages => {
+          reply({
+            attachment: {
+              type: 'template',
+              payload: {
+                template_type: 'generic',
+                elements: messages.map(m => {
+                  return m.contents
+                })
+              }
+            }
+          }, err => {
+            if (err) console.error(err)
+          })
+        })
+      }
+    })
 
     if (text.toLowerCase().indexOf('hello') >= 0) {
       bot.getProfile(payload.sender.id, (err, profile) => {
@@ -50,13 +78,16 @@ mongo.connect(MONGO_URL).then(db => {
 
     //this endpoint returns a list of all entry points
     if (text.toLowerCase().indexOf('all') >= 0) {
-      Messages.find({entrypoint: true}).toArray().then(messages => {
+      var queries = Messages.find({entrypoint: true}).toArray();
+      console.log(queries);
+      queries.then(messages => {
         reply({
           attachment: {
             type: 'template',
             payload: {
               template_type: 'generic',
               elements: messages.map(m => {
+                console.log(m.contents)
                 return m.contents
               })
             }
@@ -79,6 +110,7 @@ mongo.connect(MONGO_URL).then(db => {
         console.log(`\nSending response for ${payload.postback.payload}`)
         console.log(JSON.stringify(m, null, 2))
         reply(m.contents, err => {
+          console.log("this is a postback error");
           if (err) console.error(err)
         })
       })

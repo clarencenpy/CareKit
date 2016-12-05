@@ -185,7 +185,6 @@ export default class Main extends React.Component {
       message: '',
       buttons: []
     }
-
     data.left = 150 //default positions to place the card
     data.top = 130
     this.setState({
@@ -218,6 +217,19 @@ export default class Main extends React.Component {
     })
   }
 
+  getKeywords() {
+    var inputs = $(".ui.modal.keyword .ui.input input");
+    var keywords = [];
+    var count = 0;
+    while (count < 3) {
+      var currentKeyword = $(inputs[count]).val();
+      console.log(currentKeyword);
+      keywords.push(currentKeyword);
+      count += 1;
+    }
+    return keywords;
+  }
+
   onSave() {
     this.setState({saving: true})
     let cards = this.state.cards.toJS()
@@ -228,10 +240,22 @@ export default class Main extends React.Component {
       card.left = elem.css('left')
       return card
     })
+
+    // grabbing keywords
+    var inputs = $(".ui.modal.keyword .ui.input input");
+    var keywords = [];
+    var count = 0;
+    while (count < 3) {
+      var currentKeyword = $(inputs[count]).val();
+      console.log(currentKeyword);
+      keywords.push(currentKeyword);
+      count += 1;
+    }
+
     let id = this.state.currentPathwayId || Random.id()
     let returned = false
     let minDurationPassed = false
-    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName}, () => {
+    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName, keywords:keywords}, () => {
       returned = true
       if (minDurationPassed) this.setState({deploying: false})
     })
@@ -246,10 +270,25 @@ export default class Main extends React.Component {
     this.setState({deploying: true})
     let returned = false
     let minDurationPassed = false
+    
+    // grabbing keywords
+    var inputs = $(".ui.modal.keyword .ui.input input");
+    var keywords = [];
+    var count = 0;
+    while (count < 3) {
+      var currentKeyword = $(inputs[count]).val();
+      console.log(currentKeyword);
+      keywords.push(currentKeyword);
+      count += 1;
+    }
+
+    console.log(keywords);
+
     Meteor.call('deploy', {
       cards: this.state.cards.toJS(),
       pathwayName: this.state.pathwayName,
-      id: this.state.currentPathwayId
+      id: this.state.currentPathwayId,
+      keywords: keywords
     }, () => {
       returned = true
       if (minDurationPassed) this.setState({deploying: false})
