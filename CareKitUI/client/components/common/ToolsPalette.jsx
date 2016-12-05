@@ -1,49 +1,51 @@
 import React from 'react'
+import uuid from 'uuid'
+import {findDOMNode as getDOM}  from 'react-dom'
 
 class ToolsPalette extends React.Component {
   render() {
     return (
-        <div className="ui vertical labeled icon menu">
-          <a className="item" onClick={() => this.showCreateCardModal("Text")}>
-            <i className="file text outline icon" />
+        <div className="ui vertical labeled icon menu toolsPalette">
+          <a className="item" onClick={this.props.onAddCard}>
+            <i className="file text outline icon"/>
             Text
           </a>
-          <a className="item" onClick={() => this.showCreateCardModal("Image")}>
+          <a className="item">
             <i className="file image outline icon"/>
             Image
           </a>
-          <a className="item" onClick={() => this.showCreateCardModal("Audio")}>
-            <i className="file audio outline icon" />
+          <a className="item">
+            <i className="file audio outline icon"/>
             Audio
           </a>
-          <a className="item" onClick={() => this.showCreateCardModal("Video")}>
-            <i className="file video outline icon" />
+          <a className="item">
+            <i className="file video outline icon"/>
             Video
           </a>
-          <a className="item" onClick={() => this.showCreateCardModal("List")}>
+          {/*
+          <a className="item">
             <i className="list layout icon"/>
             List
+          </a>
+          */}
+          <a className="item" onClick={this.addKeywords}>
+            <i className="list layout icon"/>
+            Keywords
           </a>
         </div>
     )
   }
 
-  showCreateCardModal(type) {
-    $('.header.createcard').text("Create Card: " + type);
-    if(type!="Image"){
-      $(".image-card-content").hide();
-    }else{
-      $(".image-card-content").show();
-    }
-    if(type!="Audio"){
-      $(".audio-card-upload").hide();
-    }else{
-      $(".audio-card-upload").show();
-    }
-    $('.ui.modal').modal({
-    inverted: true
-  }).modal('show');
+  showCreateCardModal() {
+    console.log("show create card modal");
+    $('.ui.modal.newCard').modal('show');
   }
+
+  addKeywords() {
+    console.log("this is adding keyword");
+   $('.ui.modal.keyword').modal('show');
+  }
+
 }
 
 

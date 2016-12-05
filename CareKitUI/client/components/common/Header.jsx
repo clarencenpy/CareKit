@@ -1,15 +1,16 @@
 import React from 'react'
 import {RIEInput} from 'riek'
 import Blaze from 'meteor/gadicc:blaze-react-component'
+import uuid from 'uuid'
 
 class Header extends React.Component {
   render() {
     return (
-        <div className="ui borderless massive top attached red inverted menu">
+        <div className="ui borderless massive top fixed red inverted menu">
           <div className="ui dropdown icon item" ref="headerDropdown" onClick={this.props.onOpenRecent}>
             <i className="bars icon"/>
             <div className="menu">
-              <div className="item" onClick={this.gotoNew}>
+              <div className="item" onClick={this.gotoNew.bind(this)}>
                 New Pathway
               </div>
               <div className="item">
@@ -22,7 +23,7 @@ class Header extends React.Component {
                         this.props.savedPathways.length > 0 ?
                             this.props.savedPathways.map(p => (
                                 <a className="item" key={p._id}
-                                   onClick={this.gotoPathway.bind(null, p._id)}>{p.name}</a>
+                                   onClick={this.gotoPathway.bind(this, p._id, p.name)}>{p.name}</a>
                             )) : <div className="item">No Recently Saved Pathways</div>
 
                   }
@@ -85,12 +86,12 @@ class Header extends React.Component {
 
   gotoNew() {
     FlowRouter.go('/new')
-    location.reload()
+    this.props.onChangePathway(uuid.v1(), 'Untitled')
   }
 
-  gotoPathway(id) {
+  gotoPathway(id, pathwayName) {
     FlowRouter.go(`/pathway/${id}`)
-    location.reload()
+    this.props.onChangePathway(id, pathwayName)
   }
 
 }

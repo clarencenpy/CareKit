@@ -4,7 +4,7 @@
   "description": "BotEngine for CareKit Platform",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js & lt --port 3004 --subdomain carekitbot"
+    "start": "node index.js & lt --port 3004 --subdomain carekitbot"
   },
   "author": "clarencenpy",
   "license": "ISC",
