@@ -1,6 +1,5 @@
 import React from 'react'
 import Card from './Card'
-import CreateCardModal from './CreateCardModal'
 import ToolsPalette from './ToolsPalette'
 import Keyword from './Keyword'
 import Dimmer from './Dimmer'
@@ -12,7 +11,7 @@ export default class Workspace extends React.Component {
         <div ref="container" className="jp-container">
 
           <ToolsPalette onAddCard={this.props.onAddCard}/>
-          <Keyword/>
+          <Keyword />
 
           {
             this.props.cards.map((card) => (

@@ -9,10 +9,6 @@ Meteor.methods({
   },
 
   save({cards, pathwayName, keywords, id}) {
-    console.log("method save");
-    console.log(pathwayName);
-    console.log(id);
-    console.log(keywords);
     Pathways.update({_id: id}, {
       _id: id,
       name: pathwayName,
@@ -27,23 +23,22 @@ Meteor.methods({
 
   deploy({cards, pathwayName, id, keywords}) {
     //add entrypoint
-    
-    var keywordQuery = Messages.find({name:"keywords"}).fetch();
-    keywordMap = {};
-    entryPointMap = {};
-    storedEntryKeywords = [];
-    if (keywordQuery.length != 0) {
-      keywordResult = keywordQuery[0];
+
+    let keywordResult = Messages.findOne({name: "keywords"})
+    let keywordMap = {};
+    let entryPointMap = {};
+    let storedEntryKeywords = [];
+    if (keywordResult) {
       keywordMap = keywordResult.keywordMap;
       entryPointMap = keywordResult.entryPointMap;
     }
 
     if (id in entryPointMap) {
       storedEntryKeywords = entryPointMap[id];
-      for (var i in storedEntryKeywords) {
-        var keyword = storedEntryKeywords[i];
+      for (let i in storedEntryKeywords) {
+        let keyword = storedEntryKeywords[i];
         if (!(keyword in keywords)) {
-          var tempIdMap = keywordMap[keyword];
+          let tempIdMap = keywordMap[keyword];
           tempIdMap = tempIdMap.filter(function(v){
             return (v != id);
           });
@@ -51,12 +46,12 @@ Meteor.methods({
         }
       }
     }
-    
-    for (var i in keywords) {
-      var keyword = keywords[i];
+
+    for (let i in keywords) {
+      let keyword = keywords[i];
       if (!(keyword in storedEntryKeywords)) {
         if (keyword in keywordMap) {
-          var entrypoints = keywordMap[keyword];
+          let entrypoints = keywordMap[keyword];
           entrypoints.push(id);
           keywordMap[keyword] = entrypoints;
         } else {
