@@ -19,6 +19,9 @@ export default class Workspace extends React.Component {
                       key={card.get('id')}
                       onEditButtonTitle={this.props.onEditButtonTitle}
                       onEditMessage={this.props.onEditMessage}
+                      onEditTitle={this.props.onEditTitle}
+                      onEditImageURL={this.props.onEditImageURL}
+                      imgHasLoaded={this.props.imgHasLoaded}
                       onAddButton={this.props.onAddButton}
                       onSelectType={this.props.onSelectType}
                       onDeleteButton={this.props.onDeleteButton}

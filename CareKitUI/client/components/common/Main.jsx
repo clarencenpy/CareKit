@@ -112,6 +112,9 @@ export default class Main extends React.Component {
               onAddButton={this.onAddButton.bind(this)}
               onEditButtonTitle={this.onEditButtonTitle.bind(this)}
               onEditMessage={this.onEditMessage.bind(this)}
+              onEditTitle={this.onEditTitle.bind(this)}
+              onEditImageURL={this.onEditImageURL.bind(this)}
+              imgHasLoaded={this.imgHasLoaded.bind(this)}
               onSelectType={this.onSelectType.bind(this)}
               onDeleteButton={this.onDeleteButton.bind(this)}
           />
@@ -179,11 +182,16 @@ export default class Main extends React.Component {
     }, 1000)
   }
 
-  onAddCard() {
+  onAddCard(template_type) {
     let data = {
       id: uuid.v1(),
+      template_type,
       message: '',
       buttons: []
+    }
+    if (template_type === 'generic') {
+      data.image_url = ''
+      data.title = ''
     }
     data.left = 150 //default positions to place the card
     data.top = 130
@@ -289,6 +297,26 @@ export default class Main extends React.Component {
       this.state.jsPlumbInstance.recalculateOffsets(id)
       this.state.jsPlumbInstance.repaint(id)
     })
+  }
+
+  onEditTitle(id, data) {
+    let cardIndex = this.state.cards.findIndex(card => id === card.get('id'))
+    this.setState({cards: this.state.cards.updateIn([cardIndex, 'title'], () => data.title)})
+  }
+
+  onEditImageURL(id, data) {
+    let cardIndex = this.state.cards.findIndex(card => id === card.get('id'))
+    this.setState({cards: this.state.cards.updateIn([cardIndex, 'image_url'], () => data.image_url)}, () => {
+      //since the card may now have been resized
+      this.state.jsPlumbInstance.recalculateOffsets(id)
+      this.state.jsPlumbInstance.repaint(id)
+    })
+  }
+
+  imgHasLoaded(id) {
+    //since the card may now have been resized
+    this.state.jsPlumbInstance.recalculateOffsets(id)
+    this.state.jsPlumbInstance.repaint(id)
   }
 
   onAddButton(id) {

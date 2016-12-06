@@ -21,6 +21,26 @@
   padding: 10px !important;
 }
 
+.url-override {
+  text-align: left;
+  color: royalblue !important;
+  font-weight: bold;
+  width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title-override {
+  text-align: left;
+  color: black !important;
+  font-weight: bold;
+  width: 170px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .inline-input {
   color: black;
   font-weight: normal;
@@ -34,17 +54,22 @@
   width: 150px;
 }
 
+.inline-title-input {
+  .inline-input;
+  text-align: left;
+  font-weight: bold;
+  width: 170px;
+}
+
 .inline-textarea-input {
   .inline-input;
   text-align: left;
 }
 
-input.inline-button-input:focus {
-  outline: 0 transparent !important;
-  box-shadow: none !important;
-}
-
-textarea.inline-textarea-input:focus {
+input.inline-button-input:focus,
+input.inline-textarea-input:focus,
+textarea.inline-textarea-input:focus,
+input.inline-title-input:focus {
   outline: 0 transparent !important;
   box-shadow: none !important;
 }

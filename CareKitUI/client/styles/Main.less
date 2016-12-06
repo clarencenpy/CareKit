@@ -12,6 +12,16 @@
   left: 30px;
   top: 90px;
   z-index: 100;
+
+  .item {
+    cursor: pointer;
+    &::before {
+      display: none;
+    }
+    &:hover {
+      background-color: whitesmoke !important;
+    }
+  }
 }
 
 .ui.dimmer {

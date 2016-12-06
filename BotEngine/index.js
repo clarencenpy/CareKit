@@ -91,7 +91,6 @@ mongo.connect(MONGO_URL).then(db => {
         console.log(`\nSending response for ${payload.postback.payload}`)
         console.log(JSON.stringify(m, null, 2))
         reply(m.contents, err => {
-          console.log("this is a postback error");
           if (err) console.error(err)
         })
       })

@@ -39,7 +39,7 @@ Meteor.methods({
         let keyword = storedEntryKeywords[i];
         if (!(keyword in keywords)) {
           let tempIdMap = keywordMap[keyword];
-          tempIdMap = tempIdMap.filter(function(v){
+          tempIdMap = tempIdMap.filter(function (v) {
             return (v != id);
           });
           keywordMap[keyword] = tempIdMap;
@@ -60,7 +60,7 @@ Meteor.methods({
       }
     }
 
-    entryPointMap[id]=keywords;
+    entryPointMap[id] = keywords;
 
     Messages.update({name: "keywords"}, {
       name: "keywords",
@@ -83,15 +83,32 @@ Meteor.methods({
 
     //transform each card into the format messenger requires
     cards.forEach(card => {
-      if (card.buttons.length > 0) {
-        let output = {
-          name: card.id,
-          contents: {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'button',
-                text: card.message,
+
+      if (card.buttons.length > 0 || card.template_type === 'generic') {
+
+        let payload
+        if (card.template_type === 'button') {
+          payload = {
+            template_type: 'button',
+            text: card.message,
+            buttons: card.buttons.map(b => {
+              return {
+                type: b.type,
+                title: b.title,
+                payload: b.type === 'web_url' ? null : b.payload,
+                url: b.type === 'web_url' ? b.payload : null
+              }
+            })
+          }
+        } else if (card.template_type === 'generic') {
+          payload = {
+            template_type: card.template_type,
+            elements: [
+              {
+                // item_url: card.item_url,
+                title: card.title,
+                image_url: card.image_url,
+                subtitle: card.message,
                 buttons: card.buttons.map(b => {
                   return {
                     type: b.type,
@@ -101,13 +118,23 @@ Meteor.methods({
                   }
                 })
               }
+            ]
+          }
+        }
+
+        let output = {
+          name: card.id,
+          contents: {
+            attachment: {
+              type: 'template',
+              payload,
             }
           }
         }
         Messages.update({name: output.name}, output, {upsert: true})
 
       } else {
-        //card has no buttons
+        //card has no buttons and is not generic type
         Messages.update({name: card.id}, {
           name: card.id,
           contents: {
