@@ -156,7 +156,12 @@ class Card extends React.Component {
           {
             this.props.data.buttons && this.props.data.buttons.length > 0 ?
                 this.props.data.buttons.map((b) => (
-                    <Button {...b} key={b.uuid} onEdit={this.props.onEditButton}/>
+                    <Button {...b}
+                            key={b.id}
+                            onEditButtonTitle={this.props.onEditButtonTitle}
+                            onSelectType={this.props.onSelectType}
+                            onDeleteButton={this.props.onDeleteButton}
+                    />
                 )) : null
           }
           <div className="ui bottom attached button" onClick={this.props.onAddButton.bind(null, this.props.data.id)}>
