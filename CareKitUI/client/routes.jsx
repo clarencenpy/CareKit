@@ -16,6 +16,14 @@ FlowRouter.route('/', {
   }
 })
 
+FlowRouter.route('/auth', {
+  action () {
+    mount(MainLayout, {
+      content: (<Main />)
+    })
+  }
+})
+
 FlowRouter.route('/new', {
   action () {
     mount(MainLayout, {
