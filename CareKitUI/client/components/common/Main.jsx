@@ -203,8 +203,11 @@ export default class Main extends React.Component {
       data.image_url = ''
       data.title = ''
     }
-    data.left = 150 //default positions to place the card
-    data.top = 130
+
+    //place the card at the center of where the user has scrolled to
+    data.left = $('.main-container').scrollLeft() + 400
+    data.top = $('body').scrollTop() + 300
+
     this.setState({
       cards: this.state.cards.push(Immutable.fromJS(data))
     }, () => {
