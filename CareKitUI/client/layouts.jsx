@@ -7,3 +7,9 @@ export const MainLayout = ({content}) => (
       {content}
     </div>
 )
+
+export const HomeLayout = ({content}) => (
+    <div className="home-layout">
+      {content}
+    </div>
+)
