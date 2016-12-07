@@ -10,7 +10,7 @@ export default class Splash extends React.Component {
             </div>
             <img className="hero" src="logo.png"/>
             <br/>
-            <a href="/auth" className="ui button large basic inverted">
+            <a href="/new" className="ui button large basic inverted">
               <i className="sign in icon"/>
               Login with AndrewId
             </a>
@@ -25,7 +25,7 @@ export default class Splash extends React.Component {
       strings: [
         'Hello.^1000<br>This is <strong class="highlight">CareKit</strong>^2000',
         'I help create <strong class="highlight">engaging</strong> chat experiences<br>between students and health services.^2000',
-        'I Help To <strong class="highlight">Enable Health Professionals</strong> To Help People.^2000'
+        'I <strong class="highlight">enable</strong> Health Professionals<br>to help others.^2000'
       ],
       loop: true
     })

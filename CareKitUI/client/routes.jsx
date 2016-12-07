@@ -2,7 +2,6 @@ import React from 'react'
 import {mount} from 'react-mounter'
 
 import {MainLayout} from './layouts.jsx'
-import {HomeLayout} from './layouts.jsx'
 
 import Main from './components/common/Main.jsx'
 
@@ -12,14 +11,6 @@ FlowRouter.route('/', {
   action () {
     mount(MainLayout, {
       content: (<Splash />)
-    })
-  }
-})
-
-FlowRouter.route('/auth', {
-  action () {
-    mount(MainLayout, {
-      content: (<Main />)
     })
   }
 })
