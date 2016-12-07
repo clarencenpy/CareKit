@@ -25,8 +25,9 @@ export default class Splash extends React.Component {
       strings: [
         'Hello.^1000<br>This is <strong class="highlight">CareKit</strong>^2000',
         'I help create <strong class="highlight">engaging</strong> chat experiences<br>between students and health services.^2000',
-        'I <strong class="highlight">enable</strong> Health Professionals<br>to help others.^2000'
+        'I <strong class="highlight">empower</strong> Health Professionals<br>to help others.^2000'
       ],
+      backSpeed: 1,
       loop: true
     })
   }
