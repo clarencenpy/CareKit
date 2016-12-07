@@ -1,6 +1,5 @@
 import React from 'react'
 import Card from './Card'
-import CreateCardModal from './CreateCardModal'
 import ToolsPalette from './ToolsPalette'
 import Keyword from './Keyword'
 import Dimmer from './Dimmer'
@@ -12,7 +11,7 @@ export default class Workspace extends React.Component {
         <div ref="container" className="jp-container">
 
           <ToolsPalette onAddCard={this.props.onAddCard}/>
-          <Keyword/>
+          <Keyword />
 
           {
             this.props.cards.map((card) => (
@@ -20,6 +19,9 @@ export default class Workspace extends React.Component {
                       key={card.get('id')}
                       onEditButtonTitle={this.props.onEditButtonTitle}
                       onEditMessage={this.props.onEditMessage}
+                      onEditTitle={this.props.onEditTitle}
+                      onEditImageURL={this.props.onEditImageURL}
+                      imgHasLoaded={this.props.imgHasLoaded}
                       onAddButton={this.props.onAddButton}
                       onSelectType={this.props.onSelectType}
                       onDeleteButton={this.props.onDeleteButton}

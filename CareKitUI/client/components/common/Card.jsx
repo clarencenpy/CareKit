@@ -108,7 +108,41 @@ class Card extends React.Component {
     return (
         <div id={this.props.data.id} className="ui card jp-draggable"
              style={{left: this.props.data.left, top: this.props.data.top}}>
+          {
+            this.props.data.template_type === 'generic' && this.props.data.image_url.length > 0 ?
+                <div className="image">
+                  { this.props.data.image_url.length > 0 ?
+                      <img src={this.props.data.image_url}
+                           onLoad={this.props.imgHasLoaded.bind(null, this.props.data.id)}/> : null}
+                </div> : null
+          }
+
+          {
+            this.props.data.template_type === 'generic' ?
+                <div className="content">
+                  <div className="description url-override">
+                    <RIEInput
+                        value={this.props.data.image_url.length > 0 ? this.props.data.image_url : 'Enter Image URL'}
+                        change={this.props.onEditImageURL.bind(null, this.props.data.id)}
+                        propName="image_url"
+                        classEditing="inline-textarea-input"
+                    />
+                  </div>
+                </div> :
+                null
+          }
           <div className="content">
+            {
+              this.props.data.template_type === 'generic' ?
+                  <div className="description title-override">
+                    <RIEInput
+                        value={this.props.data.title.length > 0 ? this.props.data.title : 'Enter Title'}
+                        change={this.props.onEditTitle.bind(null, this.props.data.id)}
+                        propName="title"
+                        classEditing="inline-title-input"
+                    />
+                  </div> : null
+            }
             <div className="description">
               <RIETextArea
                   value={this.props.data.message.length > 0 ? this.props.data.message : 'Enter Message...'}

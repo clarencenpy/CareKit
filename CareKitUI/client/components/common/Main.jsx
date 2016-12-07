@@ -112,6 +112,9 @@ export default class Main extends React.Component {
               onAddButton={this.onAddButton.bind(this)}
               onEditButtonTitle={this.onEditButtonTitle.bind(this)}
               onEditMessage={this.onEditMessage.bind(this)}
+              onEditTitle={this.onEditTitle.bind(this)}
+              onEditImageURL={this.onEditImageURL.bind(this)}
+              imgHasLoaded={this.imgHasLoaded.bind(this)}
               onSelectType={this.onSelectType.bind(this)}
               onDeleteButton={this.onDeleteButton.bind(this)}
           />
@@ -179,11 +182,16 @@ export default class Main extends React.Component {
     }, 1000)
   }
 
-  onAddCard() {
+  onAddCard(template_type) {
     let data = {
       id: uuid.v1(),
+      template_type,
       message: '',
       buttons: []
+    }
+    if (template_type === 'generic') {
+      data.image_url = ''
+      data.title = ''
     }
     data.left = 150 //default positions to place the card
     data.top = 130
@@ -217,19 +225,6 @@ export default class Main extends React.Component {
     })
   }
 
-  getKeywords() {
-    var inputs = $(".ui.modal.keyword .ui.input input");
-    var keywords = [];
-    var count = 0;
-    while (count < 3) {
-      var currentKeyword = $(inputs[count]).val();
-      console.log(currentKeyword);
-      keywords.push(currentKeyword);
-      count += 1;
-    }
-    return keywords;
-  }
-
   onSave() {
     this.setState({saving: true})
     let cards = this.state.cards.toJS()
@@ -242,12 +237,11 @@ export default class Main extends React.Component {
     })
 
     // grabbing keywords
-    var inputs = $(".ui.modal.keyword .ui.input input");
-    var keywords = [];
-    var count = 0;
+    const inputs = $(".ui.modal.keyword .ui.input input");
+    const keywords = [];
+    let count = 0;
     while (count < 3) {
-      var currentKeyword = $(inputs[count]).val();
-      console.log(currentKeyword);
+      let currentKeyword = $(inputs[count]).val();
       keywords.push(currentKeyword);
       count += 1;
     }
@@ -255,7 +249,7 @@ export default class Main extends React.Component {
     let id = this.state.currentPathwayId || Random.id()
     let returned = false
     let minDurationPassed = false
-    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName, keywords:keywords}, () => {
+    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName, keywords}, () => {
       returned = true
       if (minDurationPassed) this.setState({deploying: false})
     })
@@ -272,23 +266,20 @@ export default class Main extends React.Component {
     let minDurationPassed = false
     
     // grabbing keywords
-    var inputs = $(".ui.modal.keyword .ui.input input");
-    var keywords = [];
-    var count = 0;
+    const inputs = $(".ui.modal.keyword .ui.input input");
+    const keywords = [];
+    let count = 0;
     while (count < 3) {
-      var currentKeyword = $(inputs[count]).val();
-      console.log(currentKeyword);
+      let currentKeyword = $(inputs[count]).val();
       keywords.push(currentKeyword);
       count += 1;
     }
-
-    console.log(keywords);
 
     Meteor.call('deploy', {
       cards: this.state.cards.toJS(),
       pathwayName: this.state.pathwayName,
       id: this.state.currentPathwayId,
-      keywords: keywords
+      keywords
     }, () => {
       returned = true
       if (minDurationPassed) this.setState({deploying: false})
@@ -306,6 +297,26 @@ export default class Main extends React.Component {
       this.state.jsPlumbInstance.recalculateOffsets(id)
       this.state.jsPlumbInstance.repaint(id)
     })
+  }
+
+  onEditTitle(id, data) {
+    let cardIndex = this.state.cards.findIndex(card => id === card.get('id'))
+    this.setState({cards: this.state.cards.updateIn([cardIndex, 'title'], () => data.title)})
+  }
+
+  onEditImageURL(id, data) {
+    let cardIndex = this.state.cards.findIndex(card => id === card.get('id'))
+    this.setState({cards: this.state.cards.updateIn([cardIndex, 'image_url'], () => data.image_url)}, () => {
+      //since the card may now have been resized
+      this.state.jsPlumbInstance.recalculateOffsets(id)
+      this.state.jsPlumbInstance.repaint(id)
+    })
+  }
+
+  imgHasLoaded(id) {
+    //since the card may now have been resized
+    this.state.jsPlumbInstance.recalculateOffsets(id)
+    this.state.jsPlumbInstance.repaint(id)
   }
 
   onAddButton(id) {

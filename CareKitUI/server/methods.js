@@ -9,10 +9,6 @@ Meteor.methods({
   },
 
   save({cards, pathwayName, keywords, id}) {
-    console.log("method save");
-    console.log(pathwayName);
-    console.log(id);
-    console.log(keywords);
     Pathways.update({_id: id}, {
       _id: id,
       name: pathwayName,
@@ -27,36 +23,35 @@ Meteor.methods({
 
   deploy({cards, pathwayName, id, keywords}) {
     //add entrypoint
-    
-    var keywordQuery = Messages.find({name:"keywords"}).fetch();
-    keywordMap = {};
-    entryPointMap = {};
-    storedEntryKeywords = [];
-    if (keywordQuery.length != 0) {
-      keywordResult = keywordQuery[0];
+
+    let keywordResult = Messages.findOne({name: "keywords"})
+    let keywordMap = {};
+    let entryPointMap = {};
+    let storedEntryKeywords = [];
+    if (keywordResult) {
       keywordMap = keywordResult.keywordMap;
       entryPointMap = keywordResult.entryPointMap;
     }
 
     if (id in entryPointMap) {
       storedEntryKeywords = entryPointMap[id];
-      for (var i in storedEntryKeywords) {
-        var keyword = storedEntryKeywords[i];
+      for (let i in storedEntryKeywords) {
+        let keyword = storedEntryKeywords[i];
         if (!(keyword in keywords)) {
-          var tempIdMap = keywordMap[keyword];
-          tempIdMap = tempIdMap.filter(function(v){
+          let tempIdMap = keywordMap[keyword];
+          tempIdMap = tempIdMap.filter(function (v) {
             return (v != id);
           });
           keywordMap[keyword] = tempIdMap;
         }
       }
     }
-    
-    for (var i in keywords) {
-      var keyword = keywords[i];
+
+    for (let i in keywords) {
+      let keyword = keywords[i];
       if (!(keyword in storedEntryKeywords)) {
         if (keyword in keywordMap) {
-          var entrypoints = keywordMap[keyword];
+          let entrypoints = keywordMap[keyword];
           entrypoints.push(id);
           keywordMap[keyword] = entrypoints;
         } else {
@@ -65,7 +60,7 @@ Meteor.methods({
       }
     }
 
-    entryPointMap[id]=keywords;
+    entryPointMap[id] = keywords;
 
     Messages.update({name: "keywords"}, {
       name: "keywords",
@@ -88,15 +83,32 @@ Meteor.methods({
 
     //transform each card into the format messenger requires
     cards.forEach(card => {
-      if (card.buttons.length > 0) {
-        let output = {
-          name: card.id,
-          contents: {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'button',
-                text: card.message,
+
+      if (card.buttons.length > 0 || card.template_type === 'generic') {
+
+        let payload
+        if (card.template_type === 'button') {
+          payload = {
+            template_type: 'button',
+            text: card.message,
+            buttons: card.buttons.map(b => {
+              return {
+                type: b.type,
+                title: b.title,
+                payload: b.type === 'web_url' ? null : b.payload,
+                url: b.type === 'web_url' ? b.payload : null
+              }
+            })
+          }
+        } else if (card.template_type === 'generic') {
+          payload = {
+            template_type: card.template_type,
+            elements: [
+              {
+                // item_url: card.item_url,
+                title: card.title,
+                image_url: card.image_url,
+                subtitle: card.message,
                 buttons: card.buttons.map(b => {
                   return {
                     type: b.type,
@@ -106,13 +118,23 @@ Meteor.methods({
                   }
                 })
               }
+            ]
+          }
+        }
+
+        let output = {
+          name: card.id,
+          contents: {
+            attachment: {
+              type: 'template',
+              payload,
             }
           }
         }
         Messages.update({name: output.name}, output, {upsert: true})
 
       } else {
-        //card has no buttons
+        //card has no buttons and is not generic type
         Messages.update({name: card.id}, {
           name: card.id,
           contents: {

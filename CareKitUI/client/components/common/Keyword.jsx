@@ -1,6 +1,4 @@
 import React from 'react'
-import {RIEInput, RIETextArea} from 'riek'
-import {findDOMNode as getDOM}  from 'react-dom'
 
 class Keyword extends React.Component {
   render() {
@@ -19,15 +17,10 @@ class Keyword extends React.Component {
             </div>
           </div>
           <div className="actions">
-            <div className="ui green approve button" onClick={this.showData}>Save</div>
+            <div className="ui green approve button">Save</div>
           </div>
         </div>
     )
-  }
-
-  showData() {
-    console.log("showing data");
-    console.log(this);
   }
 }
 

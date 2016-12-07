@@ -5,7 +5,16 @@ import {MainLayout} from './layouts.jsx'
 import {HomeLayout} from './layouts.jsx'
 
 import Main from './components/common/Main.jsx'
-import Home from './components/common/Home.jsx'
+
+import Splash from './components/common/Splash.jsx'
+
+FlowRouter.route('/', {
+  action () {
+    mount(MainLayout, {
+      content: (<Splash />)
+    })
+  }
+})
 
 FlowRouter.route('/new', {
   action () {
@@ -19,14 +28,6 @@ FlowRouter.route('/pathway/:id', {
   action () {
     mount(MainLayout, {
       content: (<Main />)
-    })
-  }
-})
-
-FlowRouter.route('/', {
-  action () {
-    mount(HomeLayout, {
-      content: (<Home />)
     })
   }
 })

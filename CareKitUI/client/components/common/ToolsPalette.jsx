@@ -1,48 +1,47 @@
 import React from 'react'
-import uuid from 'uuid'
-import {findDOMNode as getDOM}  from 'react-dom'
 
 class ToolsPalette extends React.Component {
   render() {
     return (
         <div className="ui vertical labeled icon menu toolsPalette">
-          <a className="item" onClick={this.props.onAddCard}>
+          <div className="item"
+               data-tooltip="Simple text message with buttons"
+               data-position="right center"
+               onClick={this.props.onAddCard.bind(null, 'button')}>
             <i className="file text outline icon"/>
             Text
-          </a>
-          <a className="item">
+          </div>
+          <div className="item"
+               data-tooltip="Message that can display an image"
+               data-position="right center"
+               onClick={this.props.onAddCard.bind(null, 'generic')}>
             <i className="file image outline icon"/>
             Image
-          </a>
-          <a className="item">
+          </div>
+          <div className="item"
+               data-tooltip="Send an audio file"
+               data-position="right center">
             <i className="file audio outline icon"/>
             Audio
-          </a>
-          <a className="item">
+          </div>
+          <div className="item"
+               data-tooltip="Send a video file"
+               data-position="right center">
             <i className="file video outline icon"/>
             Video
-          </a>
-          {/*
-          <a className="item">
-            <i className="list layout icon"/>
-            List
-          </a>
-          */}
-          <a className="item" onClick={this.addKeywords}>
+          </div>
+          <div className="item"
+               data-tooltip="Define keywords that will allow users to find your chatbot"
+               data-position="right center"
+               onClick={this.addKeywords}>
             <i className="list layout icon"/>
             Keywords
-          </a>
+          </div>
         </div>
     )
   }
 
-  showCreateCardModal() {
-    console.log("show create card modal");
-    $('.ui.modal.newCard').modal('show');
-  }
-
   addKeywords() {
-    console.log("this is adding keyword");
    $('.ui.modal.keyword').modal('show');
   }
 
