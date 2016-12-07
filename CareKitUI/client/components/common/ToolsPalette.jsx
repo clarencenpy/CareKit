@@ -37,12 +37,25 @@ class ToolsPalette extends React.Component {
             <i className="list layout icon"/>
             Keywords
           </div>
+
+          <div className="item"
+               data-tooltip="Set the default landing image for your pathway"
+               data-position="right center"
+               onClick={this.openImageModal}>
+            <i className="image icon"/>
+            Set Image
+          </div>
+
         </div>
     )
   }
 
   addKeywords() {
    $('.ui.modal.keyword').modal('show');
+  }
+
+  openImageModal() {
+    $('.ui.modal.image-modal').modal('show')
   }
 
 }

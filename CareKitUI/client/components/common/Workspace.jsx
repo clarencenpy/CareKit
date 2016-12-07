@@ -2,6 +2,7 @@ import React from 'react'
 import Card from './Card'
 import ToolsPalette from './ToolsPalette'
 import Keyword from './Keyword'
+import ImageModal from './ImageModal'
 import Dimmer from './Dimmer'
 
 
@@ -12,6 +13,8 @@ export default class Workspace extends React.Component {
 
           <ToolsPalette onAddCard={this.props.onAddCard}/>
           <Keyword />
+          <ImageModal landingImageUrl={this.props.landingImageUrl}
+                      onEditLandingImageUrl={this.props.onEditLandingImageUrl}/>
 
           {
             this.props.cards.map((card) => (

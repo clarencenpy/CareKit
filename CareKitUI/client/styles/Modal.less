@@ -1,5 +1,45 @@
-.ui.modal.keyword, .ui.modal.newCard {
-	.ui.input{
-		margin-right: 10px;
-	}
+.ui.modal.keyword {
+  .ui.input {
+    margin-right: 10px;
+  }
+}
+
+.ui.modal.keyword {
+  width: 250px;
+  position: fixed;
+  left: 550px;
+  top: 250px;
+  margin-top: 0 !important;
+
+  .ui.input input {
+    margin: 0 15px 10px 15px;
+    text-align: center;
+  }
+
+}
+
+.ui.modal.image-modal {
+  width: 550px;
+  position: fixed;
+  left: 550px;
+  top: 300px;
+  margin-top: 0 !important;
+
+  .ui.input input {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .image-preview {
+    width: 200px;
+    height: 200px;
+    border: 2px solid black;
+    object-fit: cover;
+    object-position: center;
+  }
+
+}
+
+.ui.modal > .actions {
+  text-align: center;
 }

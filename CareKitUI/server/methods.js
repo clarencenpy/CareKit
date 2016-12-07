@@ -8,7 +8,7 @@ Meteor.methods({
     return Pathways.findOne({_id: id})
   },
 
-  save({cards, pathwayName, keywords, id}) {
+  save({cards, pathwayName, landingImageUrl, keywords, id}) {
     Pathways.update({_id: id}, {
       _id: id,
       name: pathwayName,
@@ -16,12 +16,13 @@ Meteor.methods({
       keywords: keywords,
       savedState: {
         cards,
-        pathwayName
+        pathwayName,
+        landingImageUrl
       }
     }, {upsert: true})
   },
 
-  deploy({cards, pathwayName, id, keywords}) {
+  deploy({cards, pathwayName, landingImageUrl, id, keywords}) {
     //add entrypoint
 
     let keywordResult = Messages.findOne({name: "keywords"})
@@ -73,6 +74,7 @@ Meteor.methods({
       entrypoint: true,
       contents: {
         title: pathwayName,
+        image_url: landingImageUrl,
         buttons: [{
           type: 'postback',
           title: 'Start',

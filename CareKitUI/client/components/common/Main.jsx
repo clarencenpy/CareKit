@@ -83,6 +83,7 @@ export default class Main extends React.Component {
       deploying: false,
       loading: true,
       pathwayName: 'Untitled',
+      landingImageUrl: '',
       fetchingSavedPathways: false,
       savedPathways: [],
       currentPathwayId: undefined
@@ -107,6 +108,8 @@ export default class Main extends React.Component {
           <Workspace
               loading={this.state.loading}
               pathwayId={this.state.currentPathwayId}
+              landingImageUrl={this.state.landingImageUrl}
+              onEditLandingImageUrl={this.onEditLandingImageUrl.bind(this)}
               cards={this.state.cards}
               onAddCard={this.onAddCard.bind(this)}
               onAddButton={this.onAddButton.bind(this)}
@@ -137,6 +140,7 @@ export default class Main extends React.Component {
         this.setState({
           cards: Immutable.fromJS(pathway.savedState.cards),
           pathwayName: pathway.savedState.pathwayName,
+          landingImageUrl: pathway.savedState.landingImageUrl,
           currentPathwayId: pathway._id,
           loading: false
         }, () => {
@@ -162,6 +166,7 @@ export default class Main extends React.Component {
           loading: false,
           currentPathwayId: id,
           pathwayName,
+          landingImageUrl: pathway.savedState.landingImageUrl || '',
           cards: pathway ? Immutable.fromJS(pathway.savedState.cards) : Immutable.List()
         }, () => {
           jsPlumbify(this)
@@ -174,12 +179,17 @@ export default class Main extends React.Component {
         loading: false,
         currentPathwayId: id,
         pathwayName,
+        landingImageUrl: p.savedState.landingImageUrl || '',
         cards: p ? Immutable.fromJS(p.savedState.cards) : Immutable.List()
       }, () => {
         jsPlumbify(this)
       })
 
     }, 1000)
+  }
+
+  onEditLandingImageUrl(e) {
+    this.setState({landingImageUrl: e.target.value})
   }
 
   onAddCard(template_type) {
@@ -249,7 +259,13 @@ export default class Main extends React.Component {
     let id = this.state.currentPathwayId || Random.id()
     let returned = false
     let minDurationPassed = false
-    Meteor.call('save', {cards, id, pathwayName: this.state.pathwayName, keywords}, () => {
+    Meteor.call('save', {
+      cards,
+      id,
+      keywords,
+      pathwayName: this.state.pathwayName,
+      landingImageUrl: this.state.landingImageUrl
+    }, () => {
       returned = true
       if (minDurationPassed) this.setState({deploying: false})
     })
@@ -278,6 +294,7 @@ export default class Main extends React.Component {
     Meteor.call('deploy', {
       cards: this.state.cards.toJS(),
       pathwayName: this.state.pathwayName,
+      landingImageUrl: this.state.landingImageUrl,
       id: this.state.currentPathwayId,
       keywords
     }, () => {
