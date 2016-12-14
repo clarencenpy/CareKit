@@ -31,13 +31,14 @@ class ToolsPalette extends React.Component {
             Video
           </div>
           <div className="item"
-               data-tooltip="Define keywords that will allow users to find your chatbot"
+               data-tooltip="Change settings for your pathway (Set keywords and landing image)"
                data-position="right center"
                onClick={this.addKeywords}>
-            <i className="list layout icon"/>
-            Keywords
+            <i className="settings icon"/>
+            Settings
           </div>
 
+          {/*
           <div className="item"
                data-tooltip="Set the default landing image for your pathway"
                data-position="right center"
@@ -45,6 +46,7 @@ class ToolsPalette extends React.Component {
             <i className="image icon"/>
             Set Image
           </div>
+          */}
 
         </div>
     )
