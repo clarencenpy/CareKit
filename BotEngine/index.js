@@ -25,9 +25,23 @@ mongo.connect(MONGO_URL).then(db => {
     let text = payload.message.text
 
     Messages.findOne({name: "keywords"}).then(message => {
-      let keywordMap = message.keywordMap
-      if (text in keywordMap) {
-        let entrypoints = keywordMap[text];
+      let keywordMap = message.keywordMap;
+      var entrypoints = [];
+      console.log("hahaha");
+
+      for(var keyword in keywordMap) {
+        console.log(keyword);
+        if(keyword != "") {
+          if (text.toLowerCase().indexOf(keyword.toLowerCase()) != -1) {
+            console.log(true);
+            console.log(keyword);
+            entrypoints = entrypoints.concat(keywordMap[keyword]);
+          }
+        }
+      }
+
+      if (entrypoints.length > 0 ) {
+        // let entrypoints = keywordMap[text];
         Messages.find({_id: { $in : entrypoints }}).toArray().then(messages => {
           reply({
             attachment: {
