@@ -184,7 +184,7 @@ export default class Main extends React.Component {
         currentPathwayId: id,
         pathwayName,
         landingImageUrl: p ? p.savedState.landingImageUrl || '' : '',
-        cards: p ? Immutable.fromJS(p.savedState.cards) : Immutable.List()
+        cards: p ? Immutable.fromJS(p.savedState.cards) : Immutable.List(),
         keywords: p.keywords
       }, () => {
         jsPlumbify(this)
