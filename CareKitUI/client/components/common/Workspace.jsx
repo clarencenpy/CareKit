@@ -12,7 +12,12 @@ export default class Workspace extends React.Component {
         <div ref="container" className="jp-container">
 
           <ToolsPalette onAddCard={this.props.onAddCard}/>
-          <Keyword />
+          <Keyword keywords={this.props.keywords}
+                   onKeywordsEdit={this.props.onKeywordsEdit}
+                   landingImageUrl={this.props.landingImageUrl}
+                   onEditLandingImageUrl={this.props.onEditLandingImageUrl}/>
+
+                   
           <ImageModal landingImageUrl={this.props.landingImageUrl}
                       onEditLandingImageUrl={this.props.onEditLandingImageUrl}/>
 

@@ -86,7 +86,8 @@ export default class Main extends React.Component {
       landingImageUrl: '',
       fetchingSavedPathways: false,
       savedPathways: [],
-      currentPathwayId: undefined
+      currentPathwayId: undefined,
+      keywords:[]
     }
   }
 
@@ -120,6 +121,8 @@ export default class Main extends React.Component {
               imgHasLoaded={this.imgHasLoaded.bind(this)}
               onSelectType={this.onSelectType.bind(this)}
               onDeleteButton={this.onDeleteButton.bind(this)}
+              keywords={this.state.keywords}
+              onKeywordsEdit={this.onKeywordsEdit.bind(this)}
           />
 
         </div>
@@ -132,7 +135,6 @@ export default class Main extends React.Component {
     this.state.jsPlumbInstance = jsPlumb.getInstance({
       Container: getDOM(this.refs.container)
     })
-
     //try to load project
     let pathwayId = FlowRouter.getParam('id')
     if (pathwayId) {
@@ -142,7 +144,8 @@ export default class Main extends React.Component {
           pathwayName: pathway.savedState.pathwayName,
           landingImageUrl: pathway.savedState.landingImageUrl,
           currentPathwayId: pathway._id,
-          loading: false
+          loading: false,
+          keywords: pathway.keywords
         }, () => {
           jsPlumbify(this)
         })
@@ -167,7 +170,8 @@ export default class Main extends React.Component {
           currentPathwayId: id,
           pathwayName,
           landingImageUrl: pathway.savedState.landingImageUrl || '',
-          cards: pathway ? Immutable.fromJS(pathway.savedState.cards) : Immutable.List()
+          cards: pathway ? Immutable.fromJS(pathway.savedState.cards) : Immutable.List(),
+          keywords: pathway.keywords
         }, () => {
           jsPlumbify(this)
         })
@@ -181,6 +185,7 @@ export default class Main extends React.Component {
         pathwayName,
         landingImageUrl: p ? p.savedState.landingImageUrl || '' : '',
         cards: p ? Immutable.fromJS(p.savedState.cards) : Immutable.List()
+        keywords: p.keywords
       }, () => {
         jsPlumbify(this)
       })
@@ -190,6 +195,12 @@ export default class Main extends React.Component {
 
   onEditLandingImageUrl(e) {
     this.setState({landingImageUrl: e.target.value})
+  }
+
+
+  onKeywordsEdit(index, e) {
+    this.state.keywords[index] = e.target.value
+    this.setState({keywords: this.state.keywords})
   }
 
   onAddCard(template_type) {
@@ -249,15 +260,7 @@ export default class Main extends React.Component {
       return card
     })
 
-    // grabbing keywords
-    const inputs = $(".ui.modal.keyword .ui.input input");
-    const keywords = [];
-    let count = 0;
-    while (count < 3) {
-      let currentKeyword = $(inputs[count]).val();
-      keywords.push(currentKeyword);
-      count += 1;
-    }
+    keywords = this.state.keywords
 
     let id = this.state.currentPathwayId || Random.id()
     let returned = false
@@ -284,15 +287,7 @@ export default class Main extends React.Component {
     let returned = false
     let minDurationPassed = false
     
-    // grabbing keywords
-    const inputs = $(".ui.modal.keyword .ui.input input");
-    const keywords = [];
-    let count = 0;
-    while (count < 3) {
-      let currentKeyword = $(inputs[count]).val();
-      keywords.push(currentKeyword);
-      count += 1;
-    }
+    keywords = this.state.keywords
 
     Meteor.call('deploy', {
       cards: this.state.cards.toJS(),
