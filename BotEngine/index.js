@@ -1,4 +1,3 @@
-"use strict";
 const http = require('http')
 const Bot = require('messenger-bot')
 const mongo = require('mongodb').MongoClient
@@ -24,56 +23,6 @@ mongo.connect(MONGO_URL).then(db => {
 
     let text = payload.message.text
 
-    Messages.findOne({name: "keywords"}).then(message => {
-      let keywordMap = message.keywordMap;
-      var entrypoints = [];
-      console.log("hahaha");
-
-      for(var keyword in keywordMap) {
-        console.log(keyword);
-        if(keyword != "") {
-          if (text.toLowerCase().indexOf(keyword.toLowerCase()) != -1) {
-            console.log(true);
-            console.log(keyword);
-            entrypoints = entrypoints.concat(keywordMap[keyword]);
-          }
-        }
-      }
-
-      if (entrypoints.length > 0 ) {
-        // let entrypoints = keywordMap[text];
-        Messages.find({_id: { $in : entrypoints }}).toArray().then(messages => {
-          reply({
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'generic',
-                elements: messages.map(m => {
-                  return m.contents
-                })
-              }
-            }
-          }, err => {
-            if (err) console.error(err)
-          })
-        })
-      }
-    })
-
-    if (text.toLowerCase().indexOf('hello') >= 0) {
-      bot.getProfile(payload.sender.id, (err, profile) => {
-        if (err) throw err
-
-        reply({text: `Hello ${profile.first_name}, its nice to meet you!`}, () => {
-          bot.sendSenderAction(payload.sender.id, 'typing_on')
-        })
-        setTimeout(() => {
-          reply({text: 'Hey again after 5s!'})
-        }, 5000)
-      })
-      return
-    }
-
     //this endpoint returns a list of all entry points
     if (text.toLowerCase().indexOf('all') >= 0) {
       Messages.find({entrypoint: true}).toArray().then(messages => {
@@ -93,6 +42,47 @@ mongo.connect(MONGO_URL).then(db => {
       })
       return
     }
+
+    Messages.findOne({name: "keywords"}).then(message => {
+      let keywordMap = message.keywordMap;
+      let entrypoints = [];
+
+      for (let keyword in keywordMap) {
+        if (keyword !== "") {
+          if (text.toLowerCase().indexOf(keyword.toLowerCase()) >= 0) {
+            entrypoints = entrypoints.concat(keywordMap[keyword]);
+          }
+        }
+      }
+
+      bot.getProfile(payload.sender.id, (err, profile) => {
+        if (err) console.log(err)
+
+        if (entrypoints.length > 0) {
+          reply({text: `Hey ${profile ? profile.first_name : 'there'}! Great to hear from you! I have found some CareKits that can help you!`}, () => {
+            bot.sendSenderAction(payload.sender.id, 'typing_on')
+          })
+          Messages.find({_id: {$in: entrypoints}}).toArray().then(messages => {
+            reply({
+              attachment: {
+                type: 'template',
+                payload: {
+                  template_type: 'generic',
+                  elements: messages.map(m => {
+                    return m.contents
+                  })
+                }
+              }
+            }, err => {
+              if (err) console.error(err)
+            })
+          })
+        } else {
+          reply({text: `Hey ${profile ? profile.first_name : 'there'}! Great to hear from you! I'm sorry.. I tried, but I couldn't find a CareKit for your needs..`})
+        }
+      })
+
+    })
 
   })
 
