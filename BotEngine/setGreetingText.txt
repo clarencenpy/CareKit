@@ -1,0 +1,6 @@
+curl -X POST -H "Content-Type: application/json" -d '{
+  "setting_type":"greeting",
+  "greeting":{
+    "text":"Hello! I am Carrie, your all-in-one Chatbot that is here for you at CMU! Let me know if you have any issues related to health and wellness and I will try my best to help!"
+  }
+}' "https://graph.facebook.com/v2.6/me/thread_settings?access_token=EAAagfPM1rmwBAD1JtOTdgz1wtZBuOvkKHNgNr6hHH7ZCGz5ZBmbZAvHgrBIoKY1vMvcBolzIFnhvZB9RrmJM0kvmE9tYMnrN4sX48d93xF5pivWnwxwHNdWxsZBDcKlAAjgbcO8aOQyLfPcrQyfLvJ4kBfpdHY7SOnRkfpHz44ZBgZDZD"
